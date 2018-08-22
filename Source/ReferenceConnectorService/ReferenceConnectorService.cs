@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Fabric;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.ServiceFabric.Services.Communication.AspNetCore;
@@ -34,7 +32,14 @@ namespace ReferenceConnectorService
                         ServiceEventSource.Current.ServiceMessage(serviceContext, $"Starting Kestrel on {url}");
 
                         return new WebHostBuilder()
-                                    .UseKestrel()
+                                    .UseKestrel(kestrelConfigOptions =>
+                                    {
+                                        // TODO: HTTPS
+                                        //kestrelConfigOptions.ConfigureEndpointDefaults(listenerOptions =>
+                                        //{
+                                        //    listenerOptions.UseHttps()
+                                        //});
+                                    })
                                     .ConfigureServices(
                                         services => services
                                             .AddSingleton<StatelessServiceContext>(serviceContext))
