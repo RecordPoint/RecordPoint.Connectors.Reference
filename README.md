@@ -80,9 +80,14 @@ Click the Add button on your new custom connector type. A new instance of the co
 
 Next, enable the connector in Records365. This will send another webhook notification to ReferenceConnectorSF, so we should see another line in the ngrok output after enabling the connector.
 
-At this point ReferenceConnectorSF should be submitting records, aggregations, audit events and binaries to your tenant. Conent is submitted once per minute.
+At this point ReferenceConnectorSF should be submitting records, aggregations, audit events and binaries to your tenant. Content is submitted once per minute.
 
 ## Debug ReferenceConnectorSF
 
-Attach the Visual Studio debugger to the ReferenceConnectorSF processes and step through the code. 
+Attach the Visual Studio debugger to the ReferenceConnectorSF processes:
+
+*  ReferenceConnectorService.exe
+*  ReferenceconnectorWorkerService.exe
+
+Once attached, set breakpoints and step through the code. 
 
