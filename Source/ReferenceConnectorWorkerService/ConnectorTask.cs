@@ -151,7 +151,7 @@ namespace ReferenceConnectorWorkerService
             }
             catch (Exception)
             {
-                // TODO: something went wrong trying to submit the item. 
+                // Something went wrong trying to submit the item. 
                 // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
             }
             
@@ -214,7 +214,7 @@ namespace ReferenceConnectorWorkerService
             }
             catch (Exception)
             {
-                // TODO: something went wrong trying to submit the item. 
+                // Something went wrong trying to submit the item. 
                 // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
             }
         }
@@ -255,7 +255,7 @@ namespace ReferenceConnectorWorkerService
             }
             catch (Exception)
             {
-                // TODO: something went wrong trying to submit the item. 
+                // Something went wrong trying to submit the item. 
                 // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
             }
         }
@@ -307,7 +307,7 @@ namespace ReferenceConnectorWorkerService
                 }
                 catch (Exception)
                 {
-                    // TODO: something went wrong trying to submit the item. 
+                    // Something went wrong trying to submit the item. 
                     // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
                 }
 
