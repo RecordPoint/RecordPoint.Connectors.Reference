@@ -146,12 +146,15 @@ namespace ReferenceConnectorWorkerService
             try
             {
                 await _itemSubmitPipeline.Submit(submitContext).ConfigureAwait(false);
+
+                HandleSubmitPipelineResult(submitContext);
             }
             catch (Exception)
             {
-                // TODO: dead-letter the item
+                // Something went wrong trying to submit the item. 
+                // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
             }
-
+            
             // After submitting, check to see if Records365 vNext has a record of the parent item that was referenced
             // in the submission above. If it doesn't, we need to submit it.
             if (submitContext.AggregationFoundDuringItemSubmission.HasValue &&
@@ -206,10 +209,13 @@ namespace ReferenceConnectorWorkerService
             try
             {
                 await _aggregationSubmitPipeline.Submit(submitContext).ConfigureAwait(false);
+
+                HandleSubmitPipelineResult(submitContext);
             }
             catch (Exception)
             {
-                // TODO: dead-letter the item
+                // Something went wrong trying to submit the item. 
+                // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
             }
         }
         
@@ -244,10 +250,13 @@ namespace ReferenceConnectorWorkerService
             try
             {
                 await _auditEventSubmitPipeline.Submit(submitContext).ConfigureAwait(false);
+
+                HandleSubmitPipelineResult(submitContext);
             }
             catch (Exception)
             {
-                // TODO: dead-letter the item
+                // Something went wrong trying to submit the item. 
+                // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
             }
         }
 
@@ -294,10 +303,12 @@ namespace ReferenceConnectorWorkerService
                 try
                 {
                     await _binarySubmitPipeline.Submit(binarySubmitContext).ConfigureAwait(false);
+                    HandleSubmitPipelineResult(binarySubmitContext);
                 }
                 catch (Exception)
                 {
-                    // TODO: dead letter the item
+                    // Something went wrong trying to submit the item. 
+                    // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
                 }
 
                 // If the submit was deferred by the platform, wait a few seconds and try again.
@@ -307,6 +318,40 @@ namespace ReferenceConnectorWorkerService
                 }
             }
             while (binarySubmitContext.SubmitResult.SubmitStatus == SubmitResult.Status.Deferred && tryCount < 30);
+        }
+
+        private void HandleSubmitPipelineResult(SubmitContext submitContext)
+        {
+            // Check the result of the submission.
+            if (submitContext.SubmitResult.SubmitStatus == SubmitResult.Status.OK)
+            {
+                // The item was submitted successfully! Records365 guarantees that the item is now stored durably and
+                // the connector has no need to store or queue this item any more.
+            }
+            else if (submitContext.SubmitResult.SubmitStatus == SubmitResult.Status.Skipped)
+            {
+                // The item was skipped by the submit pipeline - it may have been filtered out. The connector has no need to store
+                // or queue this item any more.
+            }
+            else if (submitContext.SubmitResult.SubmitStatus == SubmitResult.Status.Deferred)
+            {
+                // The submit pipeline attempted to submit the item and the pipeline returned a result indicating that the item
+                // should be tried again later.
+            }
+            else if (submitContext.SubmitResult.SubmitStatus == SubmitResult.Status.ConnectorDisabled)
+            {
+                // The submit pipeline attempted to submit the item and the Records365 Connector API returned a response
+                // that indicated that the connector was disabled in Records365. All processing for this connector instance
+                // should stop if this result is received.
+                // Note that a user may re-enable the connector in Records365, so any book-keeping related to the connector
+                // instance should be kept. Items should be kept in a durable store with some capability to retry them.
+            }
+            else if (submitContext.SubmitResult.SubmitStatus == SubmitResult.Status.ConnectorNotFound)
+            {
+                // The submit pipeline attempted to submit the item and the Records365 Connector API returned a response
+                // that indicated that the connector doesn't exist in Records365. All processing for this connector instance
+                // should stop if this result is received. Any state related to the connector, including items, can be discarded.
+            }
         }
 
         public void Dispose()
