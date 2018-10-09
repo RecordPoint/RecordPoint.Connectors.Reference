@@ -344,7 +344,7 @@ namespace ReferenceConnectorWorkerService
                 // that indicated that the connector was disabled in Records365. All processing for this connector instance
                 // should stop if this result is received.
                 // Note that a user may re-enable the connector in Records365, so any book-keeping related to the connector
-                // instance should be kept. Items should be kept (dead-lettered) as well.
+                // instance should be kept. Items should be kept in a durable store with some capability to retry them.
             }
             else if (submitContext.SubmitResult.SubmitStatus == SubmitResult.Status.ConnectorNotFound)
             {
