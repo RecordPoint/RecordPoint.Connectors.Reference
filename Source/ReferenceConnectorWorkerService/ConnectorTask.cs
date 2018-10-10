@@ -286,13 +286,6 @@ namespace ReferenceConnectorWorkerService
             // get this filename by default when they download the binary from Records365 vNext.
             binarySubmitContext.FileName = "file.txt";
 
-            var fileContent = "This is a binary file!";
-            var fileBytes = Encoding.Default.GetBytes(fileContent);
-            var stream = new MemoryStream(fileBytes);
-
-            // Set the Stream of the binary. This stream represents the binary content.
-            binarySubmitContext.Stream = stream;
-
             // Submit the binary!
             // Note the retry loop here - the binary submission endpoint may reject the submission
             // of a binary if the item it refers to has not been processed by the platform yet. 
@@ -300,12 +293,22 @@ namespace ReferenceConnectorWorkerService
             do
             {
                 tryCount++;
+
+                var fileContent = "This is a binary file!";
+                var fileBytes = Encoding.Default.GetBytes(fileContent);
+                var stream = new MemoryStream(fileBytes);
+
+                // Set the Stream of the binary. This stream represents the binary content.
+                // Note that the MemoryStream.Position will be moved to the end on each API call
+                // So if the submission needs to be retried, a new stream should be assigned here
+                binarySubmitContext.Stream = stream;
+
                 try
                 {
                     await _binarySubmitPipeline.Submit(binarySubmitContext).ConfigureAwait(false);
                     HandleSubmitPipelineResult(binarySubmitContext);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
                     // Something went wrong trying to submit the item. 
                     // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).

@@ -28,8 +28,8 @@ Finally, under `Keys`, create a new Key and take note of its value.
 In the ReferenceConnectorSF solution, open `ConnectorApiAuthHelper.cs` and plug in the appropriate values from the Azure Active Directory App Registration created above. Ensure the following values are updated:
 *  **Client ID**: this is the `Application ID` of the App
 *  **Client Secret**: this is the `Key` 
-*  **Authentication Resource**: TBD
-*  **Connector API URL**: TBD
+*  **Authentication Resource**: the `App ID URI` of the App
+*  **Connector API URL**: the Connectors API from of your Records365 environment. For a local environment, this is `https://localhost:44366/`
 
 ## Deploy ReferenceConnectorSF
 
