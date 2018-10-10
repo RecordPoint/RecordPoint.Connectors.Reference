@@ -29,7 +29,7 @@ In the ReferenceConnectorSF solution, open `ConnectorApiAuthHelper.cs` and plug 
 *  **Client ID**: this is the `Application ID` of the App
 *  **Client Secret**: this is the `Key` 
 *  **Authentication Resource**: the `App ID URI` of the App
-*  **Connector API URL**: the Connectors API from of your Records365 environment. For a local environment, this is `https://localhost:44366/`
+*  **Connector API URL**: the Connectors API of your Records365 environment
 
 ## Deploy ReferenceConnectorSF
 
