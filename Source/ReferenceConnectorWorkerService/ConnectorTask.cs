@@ -308,7 +308,7 @@ namespace ReferenceConnectorWorkerService
                     await _binarySubmitPipeline.Submit(binarySubmitContext).ConfigureAwait(false);
                     HandleSubmitPipelineResult(binarySubmitContext);
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // Something went wrong trying to submit the item. 
                     // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
