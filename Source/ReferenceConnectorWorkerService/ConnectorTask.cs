@@ -301,28 +301,30 @@ namespace ReferenceConnectorWorkerService
 
                 var fileContent = "This is a binary file!";
                 var fileBytes = Encoding.Default.GetBytes(fileContent);
-                var stream = new MemoryStream(fileBytes);
-
-                // Set the Stream of the binary. This stream represents the binary content.
-                // Note that the MemoryStream.Position will be moved to the end on each API call
-                // So if the submission needs to be retried, a new stream should be assigned here
-                binarySubmitContext.Stream = stream;
-
-                try
+                using (var stream = new MemoryStream(fileBytes))
                 {
-                    await _binarySubmitPipeline.Submit(binarySubmitContext).ConfigureAwait(false);
-                    HandleSubmitPipelineResult(binarySubmitContext);
-                }
-                catch (Exception)
-                {
-                    // Something went wrong trying to submit the item. 
-                    // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
-                }
 
-                // If the submit was deferred by the platform, wait a few seconds and try again.
-                if (binarySubmitContext.SubmitResult.SubmitStatus == SubmitResult.Status.Deferred)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+                    // Set the Stream of the binary. This stream represents the binary content.
+                    // Note that the MemoryStream.Position will be moved to the end on each API call
+                    // So if the submission needs to be retried, a new stream should be assigned here
+                    binarySubmitContext.Stream = stream;
+
+                    try
+                    {
+                        await _binarySubmitPipeline.Submit(binarySubmitContext).ConfigureAwait(false);
+                        HandleSubmitPipelineResult(binarySubmitContext);
+                    }
+                    catch (Exception)
+                    {
+                        // Something went wrong trying to submit the item. 
+                        // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
+                    }
+
+                    // If the submit was deferred by the platform, wait a few seconds and try again.
+                    if (binarySubmitContext.SubmitResult.SubmitStatus == SubmitResult.Status.Deferred)
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+                    }
                 }
             }
             while (binarySubmitContext.SubmitResult.SubmitStatus == SubmitResult.Status.Deferred && tryCount < 30);
