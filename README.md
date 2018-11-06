@@ -60,7 +60,6 @@ Click "Add Connector", then click the ellipsis menu in the top right and select 
 *  **Short Name**: Short name of your connector type.
 *  **Content Source**: Name of the content source that your connector adapts to. 
 *  **Publisher**: Name of the organization that publishes your connector type.
-*  **Custom Settings Page URL**: Leave this blank.
 *  **Client ID**: The `Application ID` from the Azure Active Directory App Registration created above.
 *  **Allow Client ID Override**: No.
 *  **Notification Method**: Push.
