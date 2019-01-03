@@ -38,7 +38,9 @@ namespace ReferenceConnectorWorkerService
 
             var httpSubmitItemElement = new HttpSubmitItemPipelineElement(null);
             httpSubmitItemElement.ApiClientFactory = apiClientFactory;
-            _itemSubmitPipeline = httpSubmitItemElement;
+            _itemSubmitPipeline = new FilterPipelineElement(httpSubmitItemElement);
+
+            //ToDO: Need filters for other pipes? Probably.
 
             var httpSubmitAggregationElement = new HttpSubmitAggregationPipelineElement(null);
             httpSubmitAggregationElement.ApiClientFactory = apiClientFactory;
