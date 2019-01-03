@@ -154,20 +154,24 @@ namespace ReferenceConnectorWorkerService
                 // Something went wrong trying to submit the item. 
                 // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
             }
-            
-            // After submitting, check to see if Records365 vNext has a record of the parent item that was referenced
-            // in the submission above. If it doesn't, we need to submit it.
-            if (submitContext.AggregationFoundDuringItemSubmission.HasValue &&
-                !submitContext.AggregationFoundDuringItemSubmission.Value)
+
+            //If filtered out by the FilterPipelineElement, we do not want to submit
+            if (submitContext.SubmitResult.SubmitStatus != SubmitResult.Status.Skipped)
             {
-                await SubmitAggregation(parentExternalId, cancellationToken).ConfigureAwait(false);
+                // After submitting, check to see if Records365 vNext has a record of the parent item that was referenced
+                // in the submission above. If it doesn't, we need to submit it.
+                if (submitContext.AggregationFoundDuringItemSubmission.HasValue &&
+                !submitContext.AggregationFoundDuringItemSubmission.Value)
+                {
+                    await SubmitAggregation(parentExternalId, cancellationToken).ConfigureAwait(false);
+                }
+
+                // Submit an audit event for the item.
+                await SubmitAuditEvent(externalId, cancellationToken).ConfigureAwait(false);
+
+                // Submit the binary for the item.
+                await SubmitBinary(externalId, cancellationToken).ConfigureAwait(false);
             }
-
-            // Submit an audit event for the item.
-            await SubmitAuditEvent(externalId, cancellationToken).ConfigureAwait(false);
-
-            // Submit the binary for the item.
-            await SubmitBinary(externalId, cancellationToken).ConfigureAwait(false);
             
         }
 
