@@ -71,6 +71,94 @@ Click "Add Connector", then click the ellipsis menu in the top right and select 
 
 Click Save. Your custom connector type will now appear in the Connectors Gallery.
 
+## Optional: Add Custom UI Components to the Connector Type
+
+Records365 also allows the addition of several types of optional customizable UI components to connector types. At present, these consist of drop-down, list-of-values, and filter components, any of which may be added to a connector type via an API call to update the connector with a provided JSON-formatted manifest. 
+
+In order to add these components, you must first get the existing connector type JSON. This may be extracted from the network call done when accessing the Connectors Gallery, or can be retrieved via the API and should be copied and pasted into an appropriate text editor. Then, add the "clientSecret" field to the JSON, and give it a value corresponding to the previously used Client Secret. Finally, replace the value of the "manifest" field with the following:
+    
+    "manifest": {
+		"connectorTypeManifestUIElements": [{
+          "Icon": "envelope",
+          "Key": "ManagedMailBoxes",
+          "ValuesCanBeChangedAfterConnectorEnabled": true,
+          "Type": "ListOfValues",
+          "Position": 0,
+          "Properties": [
+            {
+              "Name": "ListOfValuesValidationType",
+              "Type": "String",
+              "Value": "Email"
+            }
+          ],
+          "Translations": [
+            {
+              "Language": "en-US",
+              "Values": {
+                "title": "Add Managed Mailboxes",
+                "listofvaluesaddbuttontext": "Add Managed Mailbox"
+              }
+            },
+            {
+              "Language": "pt-PT",
+              "Values": {
+                "title": "Adicionar caixas de correio gerenciadas",
+                "listofvaluesaddbuttontext": "Adicionar caixa de correio gerenciada"
+              }
+            }
+          ]
+        },
+        {
+          "Icon": "tasks",
+          "Key": "AggregationLevel",
+          "ValuesCanBeChangedAfterConnectorEnabled": false,
+          "Type": "DropDown",
+          "Position": 1,
+          "Properties": [
+            {
+              "Name": "DropDownKeys",
+              "Type": "String",
+              "Value": "mailbox|conversations|topmostfolder|lowestlevelfolder"
+            }
+          ],
+          "Translations": [
+            {
+              "Language": "en-US",
+              "Values": {
+                "title": "Set Aggregation Level",
+                "dropdowndescription": "Default Aggregation Level",
+                "mailbox": "Mailbox",
+                "conversations": "Conversations",
+                "topmostfolder": "Top Most Folder",
+                "lowestlevelfolder": "Lowest Level Folder"
+              }
+            },
+            {
+              "Language": "pt-PT",
+              "Values": {
+                "title": "Definir o nível de agregação",
+                "dropdowndescription": "Nível de Agregação Padrão",
+                "mailbox": "Caixa de correio",
+                "conversations": "Conversas",
+                "topmostfolder": "Topo Mais Pasta",
+                "lowestlevelfolder": "Pasta de nível mais baixo"
+              }
+            }
+          ]
+        },
+        {
+          "Icon": "filters",
+          "Key": "Filters",
+          "ValuesCanBeChangedAfterConnectorEnabled": false,
+          "Type": "Filters",
+          "Position": 2,
+          "Properties": [],
+          "Translations": []
+        }]
+	},
+    
+Customization of these components is explored further within the documentation at the following address: https://github.com/RecordPoint/RecordPoint.Connectors.Framework.Doc/wiki/05.-Connector-Type-Configuration-Manifest
+
 ## Create a Connector 
 
 Click the Add button on your new custom connector type. A new instance of the connector will be created. This should have sent a webhook notification to ReferenceConnectorSF in your local environment via ngrok. This can be verified in the ngrok window - there should be a line at the bottom of the output that reads 
