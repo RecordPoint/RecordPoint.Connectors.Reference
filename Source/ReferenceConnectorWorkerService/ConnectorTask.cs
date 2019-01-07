@@ -155,8 +155,9 @@ namespace ReferenceConnectorWorkerService
                 // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
             }
 
-            //If filtered out by the FilterPipelineElement, we do not want to submit
-            if (submitContext.SubmitResult.SubmitStatus != SubmitResult.Status.Skipped)
+            //If filtered out or otherwise skipped, we do not wish to trigger the following consequential submissions.
+            //Note that this may be done as part of HandleSubmitPipelineResult for neater code.
+            if (submitContext.SubmitResult.SubmitStatus == SubmitResult.Status.OK)
             {
                 // After submitting, check to see if Records365 vNext has a record of the parent item that was referenced
                 // in the submission above. If it doesn't, we need to submit it.
