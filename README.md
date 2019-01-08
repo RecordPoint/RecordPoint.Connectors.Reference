@@ -71,93 +71,32 @@ Click "Add Connector", then click the ellipsis menu in the top right and select 
 
 Click Save. Your custom connector type will now appear in the Connectors Gallery.
 
-## Optional: Add Custom UI Components to the Connector Type
+## Add Filters Configuration to the Connector Type
 
-Records365 also allows the addition of several types of optional customizable UI components to connector types. At present, these consist of drop-down, list-of-values, and filter components, any of which may be added to a connector type via an API call to update the connector with a provided JSON-formatted manifest. 
+On the Records365 Management API for your environment, call 
 
-In order to add these components, you must first get the existing connector type JSON. This may be extracted from the network call done when accessing the Connectors Gallery, or can be retrieved via the API and should be copied and pasted into an appropriate text editor. Then, add the "clientSecret" field to the JSON, and give it a value corresponding to the previously used Client Secret. Finally, replace the value of the "manifest" field with the following:
+    GET /api/ConnectorTypes
+
+And locate the connector type created above in the response. Copy only the connector type created above, and modify the `manifest` property such that it reads like so:
     
     "manifest": {
-		"connectorTypeManifestUIElements": [{
-          "Icon": "envelope",
-          "Key": "ManagedMailBoxes",
-          "ValuesCanBeChangedAfterConnectorEnabled": true,
-          "Type": "ListOfValues",
-          "Position": 0,
-          "Properties": [
-            {
-              "Name": "ListOfValuesValidationType",
-              "Type": "String",
-              "Value": "Email"
-            }
-          ],
-          "Translations": [
-            {
-              "Language": "en-US",
-              "Values": {
-                "title": "Add Managed Mailboxes",
-                "listofvaluesaddbuttontext": "Add Managed Mailbox"
-              }
-            },
-            {
-              "Language": "pt-PT",
-              "Values": {
-                "title": "Adicionar caixas de correio gerenciadas",
-                "listofvaluesaddbuttontext": "Adicionar caixa de correio gerenciada"
-              }
-            }
-          ]
-        },
-        {
-          "Icon": "tasks",
-          "Key": "AggregationLevel",
-          "ValuesCanBeChangedAfterConnectorEnabled": false,
-          "Type": "DropDown",
-          "Position": 1,
-          "Properties": [
-            {
-              "Name": "DropDownKeys",
-              "Type": "String",
-              "Value": "mailbox|conversations|topmostfolder|lowestlevelfolder"
-            }
-          ],
-          "Translations": [
-            {
-              "Language": "en-US",
-              "Values": {
-                "title": "Set Aggregation Level",
-                "dropdowndescription": "Default Aggregation Level",
-                "mailbox": "Mailbox",
-                "conversations": "Conversations",
-                "topmostfolder": "Top Most Folder",
-                "lowestlevelfolder": "Lowest Level Folder"
-              }
-            },
-            {
-              "Language": "pt-PT",
-              "Values": {
-                "title": "Definir o nível de agregação",
-                "dropdowndescription": "Nível de Agregação Padrão",
-                "mailbox": "Caixa de correio",
-                "conversations": "Conversas",
-                "topmostfolder": "Topo Mais Pasta",
-                "lowestlevelfolder": "Pasta de nível mais baixo"
-              }
-            }
-          ]
-        },
-        {
-          "Icon": "filters",
-          "Key": "Filters",
-          "ValuesCanBeChangedAfterConnectorEnabled": false,
-          "Type": "Filters",
-          "Position": 2,
-          "Properties": [],
-          "Translations": []
-        }]
+      "connectorTypeManifestUIElements": [
+          {
+            "icon": "filters",
+            "key": "Filters",
+            "valuesCanBeChangedAfterConnectorEnabled": false,
+            "type": "Filters",
+            "position": 0,
+            "properties": [],
+            "translations": []
+          }]
 	},
-    
-Customization of these components is explored further within the documentation at the following address: https://github.com/RecordPoint/RecordPoint.Connectors.Framework.Doc/wiki/05.-Connector-Type-Configuration-Manifest
+
+Pass the updated connector type JSON to the body of
+
+    PUT /api/ConnectorTypes
+  
+Note the Filters configuration is part of a range of configuration options available in the Records365 Connector Framework. See [Configuration Manifest](https://github.com/RecordPoint/RecordPoint.Connectors.Framework.Doc/wiki/05.-Connector-Type-Configuration-Manifest) for more details.
 
 ## Create a Connector 
 
