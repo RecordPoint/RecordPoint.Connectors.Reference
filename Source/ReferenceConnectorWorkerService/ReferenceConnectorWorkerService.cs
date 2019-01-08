@@ -38,15 +38,28 @@ namespace ReferenceConnectorWorkerService
 
             var httpSubmitItemElement = new HttpSubmitItemPipelineElement(null);
             httpSubmitItemElement.ApiClientFactory = apiClientFactory;
-            _itemSubmitPipeline = new FilterPipelineElement(httpSubmitItemElement);
+
+            // Create a Filter pipeline element for items. This implements the logic 
+            // to apply the user-defined filtering on item submission.
+            // Pass the httpSubmitItemElement into the FilterPipelineElement to create a chain of pipeline elements.
+            // The filter is called first, followed by the submission element.
+            var itemFilterPipelineElement = new FilterPipelineElement(httpSubmitItemElement);
+
+            _itemSubmitPipeline = itemFilterPipelineElement;
 
             var httpSubmitAggregationElement = new HttpSubmitAggregationPipelineElement(null);
             httpSubmitAggregationElement.ApiClientFactory = apiClientFactory;
-            _aggregationSubmitPipeline = httpSubmitAggregationElement;
+
+            var aggregationFilterPipelineElement = new FilterPipelineElement(httpSubmitAggregationElement);
+
+            _aggregationSubmitPipeline = aggregationFilterPipelineElement;
 
             var httpSubmitBinaryElement = new HttpSubmitBinaryPipelineElement(null);
             httpSubmitBinaryElement.ApiClientFactory = apiClientFactory;
-            _binarySubmitPipeline = httpSubmitBinaryElement;
+
+            var binaryFilterPipelineElement = new FilterPipelineElement(httpSubmitBinaryElement);
+
+            _binarySubmitPipeline = binaryFilterPipelineElement;
 
             var httpSubmitAuditEventElement = new HttpSubmitAuditEventPipelineElement(null);
             httpSubmitAuditEventElement.ApiClientFactory = apiClientFactory;

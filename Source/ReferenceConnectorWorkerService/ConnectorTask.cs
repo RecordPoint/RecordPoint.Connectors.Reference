@@ -102,6 +102,7 @@ namespace ReferenceConnectorWorkerService
                 AuthenticationHelperSettings = ConnectorApiAuthHelper.GetAuthenticationHelperSettings(_connectorConfigModel.TenantDomainName),
                 CoreMetaData = new List<SubmissionMetaDataModel>(),
                 SourceMetaData = new List<SubmissionMetaDataModel>(),
+                Filters = _connectorConfigModel.Filters,
                 CancellationToken = cancellationToken
             };
 
@@ -186,6 +187,7 @@ namespace ReferenceConnectorWorkerService
                 AuthenticationHelperSettings = ConnectorApiAuthHelper.GetAuthenticationHelperSettings(_connectorConfigModel.TenantDomainName),
                 CoreMetaData = new List<SubmissionMetaDataModel>(),
                 SourceMetaData = new List<SubmissionMetaDataModel>(),
+                Filters = _connectorConfigModel.Filters,
                 CancellationToken = cancellationToken
             };
             
@@ -234,6 +236,7 @@ namespace ReferenceConnectorWorkerService
                 AuthenticationHelperSettings = ConnectorApiAuthHelper.GetAuthenticationHelperSettings(_connectorConfigModel.TenantDomainName),
                 CoreMetaData = new List<SubmissionMetaDataModel>(),
                 SourceMetaData = new List<SubmissionMetaDataModel>(),
+                Filters = _connectorConfigModel.Filters,
                 CancellationToken = cancellationToken
             };
 
@@ -287,6 +290,7 @@ namespace ReferenceConnectorWorkerService
                         AuthenticationHelperSettings = ConnectorApiAuthHelper.GetAuthenticationHelperSettings(_connectorConfigModel.TenantDomainName),
                         CoreMetaData = new List<SubmissionMetaDataModel>(),
                         SourceMetaData = new List<SubmissionMetaDataModel>(),
+                        Filters = _connectorConfigModel.Filters,
                         CancellationToken = cancellationToken
                     };
 
