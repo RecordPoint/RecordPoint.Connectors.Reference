@@ -71,6 +71,33 @@ Click "Add Connector", then click the ellipsis menu in the top right and select 
 
 Click Save. Your custom connector type will now appear in the Connectors Gallery.
 
+## Add Filters Configuration to the Connector Type
+
+On the Records365 Management API for your environment, call 
+
+    GET /api/ConnectorTypes
+
+And locate the connector type created above in the response. Copy only the connector type created above, and modify the `manifest` property such that it reads like so:
+    
+    "manifest": {
+      "connectorTypeManifestUIElements": [
+          {
+            "icon": "filters",
+            "key": "Filters",
+            "valuesCanBeChangedAfterConnectorEnabled": false,
+            "type": "Filters",
+            "position": 0,
+            "properties": [],
+            "translations": []
+          }]
+	},
+
+Pass the updated connector type JSON to the body of
+
+    PUT /api/ConnectorTypes
+  
+Note the Filters configuration is part of a range of configuration options available in the Records365 Connector Framework. See [Configuration Manifest](https://github.com/RecordPoint/RecordPoint.Connectors.Framework.Doc/wiki/05.-Connector-Type-Configuration-Manifest) for more details.
+
 ## Create a Connector 
 
 Click the Add button on your new custom connector type. A new instance of the connector will be created. This should have sent a webhook notification to ReferenceConnectorSF in your local environment via ngrok. This can be verified in the ngrok window - there should be a line at the bottom of the output that reads 

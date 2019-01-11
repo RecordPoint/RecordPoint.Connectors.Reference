@@ -102,6 +102,7 @@ namespace ReferenceConnectorWorkerService
                 AuthenticationHelperSettings = ConnectorApiAuthHelper.GetAuthenticationHelperSettings(_connectorConfigModel.TenantDomainName),
                 CoreMetaData = new List<SubmissionMetaDataModel>(),
                 SourceMetaData = new List<SubmissionMetaDataModel>(),
+                Filters = _connectorConfigModel.Filters,
                 CancellationToken = cancellationToken
             };
 
@@ -154,20 +155,25 @@ namespace ReferenceConnectorWorkerService
                 // Something went wrong trying to submit the item. 
                 // Dead-letter the item to a durable data store where it can be retried later. (e.g., a message broker).
             }
-            
-            // After submitting, check to see if Records365 vNext has a record of the parent item that was referenced
-            // in the submission above. If it doesn't, we need to submit it.
-            if (submitContext.AggregationFoundDuringItemSubmission.HasValue &&
-                !submitContext.AggregationFoundDuringItemSubmission.Value)
+
+            //If filtered out or otherwise skipped, we do not wish to trigger the following consequential submissions.
+            //Note that this may be done as part of HandleSubmitPipelineResult for neater code.
+            if (submitContext.SubmitResult.SubmitStatus == SubmitResult.Status.OK)
             {
-                await SubmitAggregation(parentExternalId, cancellationToken).ConfigureAwait(false);
+                // After submitting, check to see if Records365 vNext has a record of the parent item that was referenced
+                // in the submission above. If it doesn't, we need to submit it.
+                if (submitContext.AggregationFoundDuringItemSubmission.HasValue &&
+                !submitContext.AggregationFoundDuringItemSubmission.Value)
+                {
+                    await SubmitAggregation(parentExternalId, cancellationToken).ConfigureAwait(false);
+                }
+
+                // Submit an audit event for the item.
+                await SubmitAuditEvent(externalId, cancellationToken).ConfigureAwait(false);
+
+                // Submit the binary for the item.
+                await SubmitBinary(externalId, cancellationToken).ConfigureAwait(false);
             }
-
-            // Submit an audit event for the item.
-            await SubmitAuditEvent(externalId, cancellationToken).ConfigureAwait(false);
-
-            // Submit the binary for the item.
-            await SubmitBinary(externalId, cancellationToken).ConfigureAwait(false);
             
         }
 
@@ -181,6 +187,7 @@ namespace ReferenceConnectorWorkerService
                 AuthenticationHelperSettings = ConnectorApiAuthHelper.GetAuthenticationHelperSettings(_connectorConfigModel.TenantDomainName),
                 CoreMetaData = new List<SubmissionMetaDataModel>(),
                 SourceMetaData = new List<SubmissionMetaDataModel>(),
+                Filters = _connectorConfigModel.Filters,
                 CancellationToken = cancellationToken
             };
             
@@ -229,6 +236,7 @@ namespace ReferenceConnectorWorkerService
                 AuthenticationHelperSettings = ConnectorApiAuthHelper.GetAuthenticationHelperSettings(_connectorConfigModel.TenantDomainName),
                 CoreMetaData = new List<SubmissionMetaDataModel>(),
                 SourceMetaData = new List<SubmissionMetaDataModel>(),
+                Filters = _connectorConfigModel.Filters,
                 CancellationToken = cancellationToken
             };
 
@@ -282,6 +290,7 @@ namespace ReferenceConnectorWorkerService
                         AuthenticationHelperSettings = ConnectorApiAuthHelper.GetAuthenticationHelperSettings(_connectorConfigModel.TenantDomainName),
                         CoreMetaData = new List<SubmissionMetaDataModel>(),
                         SourceMetaData = new List<SubmissionMetaDataModel>(),
+                        Filters = _connectorConfigModel.Filters,
                         CancellationToken = cancellationToken
                     };
 
