@@ -127,14 +127,14 @@ namespace ReferenceConnectorWorkerService
             submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedDate, value: DateTime.UtcNow.ToString("O")));
 
             // Set some mandatory core fields that are required by all items.
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Title, value: $"Fake Record from {_connectorConfigModel.Id}"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Author, value: "Record ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedDate, value: DateTime.UtcNow.ToString("O")));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedBy, value: "ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedBy, value: "ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Location, value: "Fake record"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.MediaType, value: "Electronic"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ContentVersion, value: "1.0"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Title, type: nameof(String), value: $"Fake Record from {_connectorConfigModel.Id}"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Author, type: nameof(String), value: "Record ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedDate, type: nameof(DateTime), value: DateTime.UtcNow.ToString("O")));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedBy, type: nameof(String), value: "ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedBy, type: nameof(String), value: "ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Location, type: nameof(String), value: "Fake record"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.MediaType, type: nameof(String), value: "Electronic"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ContentVersion, type: nameof(String), value: "1.0"));
 
             // Set some source metadata fields. 
             // Source metadata fields are intended for any metadata related to the item available from the content source that is 
@@ -142,6 +142,8 @@ namespace ReferenceConnectorWorkerService
             // source metadata. Any source field submitted to Records365 vNext is visible in the UI and is searchable by users. 
             submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("Checkin Comments", type: nameof(String), value: "Some checkin comments"));
             submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("Last Sync Date", type: nameof(DateTime), value: DateTime.UtcNow.ToString("O")));
+            submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("NumberValue", type: nameof(Double), value: "100"));
+            submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("BoolValue", type: nameof(Boolean), value: "true"));
 
             // Submit the item!
             try
@@ -201,7 +203,7 @@ namespace ReferenceConnectorWorkerService
 
             submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedDate, value: DateTime.UtcNow.ToString("O")));
 
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Title, value: $"Fake Record Folder from {_connectorConfigModel.Id}"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Title, type: nameof(String), value: $"Fake Record Folder from {_connectorConfigModel.Id}"));
             submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Author, value: "Record ReferenceConnectorSF"));
             submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedDate, value: DateTime.UtcNow.ToString("O")));
             submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedBy, value: "ReferenceConnectorSF"));
