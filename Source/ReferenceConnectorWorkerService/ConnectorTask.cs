@@ -114,27 +114,27 @@ namespace ReferenceConnectorWorkerService
             // In this sample, we generate a new ExternalId for every submission, meaning every submission
             // is a new item.
             var externalId = Guid.NewGuid().ToString();
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ExternalId, value: externalId));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ExternalId, type: nameof(String), value: externalId));
 
             // Set the "ParentExternalId" of the item.
             // For items this field identifies the parent item. 
             var parentExternalId = Guid.NewGuid().ToString();
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ParentExternalId, value: parentExternalId));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ParentExternalId, type: nameof(String), value: parentExternalId));
 
             // Set the "SourceLastModifiedDate" of the item.
             // Records365 vNext uses this field to determine ordering of versions of an item. Note that items may be submitted 
             // out of order.
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedDate, value: DateTime.UtcNow.ToString("O")));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedDate, type: nameof(DateTime), value: DateTime.UtcNow.ToString("O")));
 
             // Set some mandatory core fields that are required by all items.
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Title, value: $"Fake Record from {_connectorConfigModel.Id}"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Author, value: "Record ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedDate, value: DateTime.UtcNow.ToString("O")));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedBy, value: "ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedBy, value: "ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Location, value: "Fake record"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.MediaType, value: "Electronic"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ContentVersion, value: "1.0"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Title, type:nameof(String), value: $"Fake Record from {_connectorConfigModel.Id}"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Author, type: nameof(String), value: "Record ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedDate, type: nameof(DateTime), value: DateTime.UtcNow.ToString("O")));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedBy, type: nameof(String), value: "ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedBy, type: nameof(String), value: "ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Location, type: nameof(String), value: "Fake record"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.MediaType, type: nameof(String), value: "Electronic"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ContentVersion, type: nameof(String), value: "1.0"));
 
             // Set some source metadata fields. 
             // Source metadata fields are intended for any metadata related to the item available from the content source that is 
@@ -142,6 +142,8 @@ namespace ReferenceConnectorWorkerService
             // source metadata. Any source field submitted to Records365 vNext is visible in the UI and is searchable by users. 
             submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("Checkin Comments", type: nameof(String), value: "Some checkin comments"));
             submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("Last Sync Date", type: nameof(DateTime), value: DateTime.UtcNow.ToString("O")));
+            submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("NumberValue", type: nameof(Double), value: "100"));
+            submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("BoolValue", type: nameof(Boolean), value: "true"));
 
             // Submit the item!
             try
@@ -191,24 +193,24 @@ namespace ReferenceConnectorWorkerService
                 CancellationToken = cancellationToken
             };
             
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ExternalId, value: externalId.ToString()));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ExternalId, type: nameof(String), value: externalId.ToString()));
 
             // Aggregations need to have the special "ItemTypeId" field set to "1" to identify them as being an aggregation. 
             // Submissions that omit this field are identified as items.
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ItemTypeId, value: "1"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ItemTypeId, type: nameof(Double), value: "1"));
 
             // Note we do not set the ParentExternalId of the aggregation - in most cases aggregations don't have a parent.
 
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedDate, value: DateTime.UtcNow.ToString("O")));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedDate, type: nameof(DateTime), value: DateTime.UtcNow.ToString("O")));
 
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Title, value: $"Fake Record Folder from {_connectorConfigModel.Id}"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Author, value: "Record ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedDate, value: DateTime.UtcNow.ToString("O")));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedBy, value: "ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedBy, value: "ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Location, value: "Fake Record Folder"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.MediaType, value: "Electronic"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ContentVersion, value: "1.0"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Title, type: nameof(String), value: $"Fake Record Folder from {_connectorConfigModel.Id}"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Author, type: nameof(String), value: "Record ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedDate, type: nameof(DateTime), value: DateTime.UtcNow.ToString("O")));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceCreatedBy, type: nameof(String), value: "ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.SourceLastModifiedBy, type: nameof(String), value: "ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.Location, type: nameof(String), value: "Fake Record Folder"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.MediaType, type: nameof(String), value: "Electronic"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.ContentVersion, type: nameof(String), value: "1.0"));
 
             submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("Checkin Comments", type: nameof(String), value: "Some checkin comments"));
             
@@ -241,15 +243,15 @@ namespace ReferenceConnectorWorkerService
             };
 
             // Associate the audit event with the item with the item external id.
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.ExternalId, value: itemExternalId));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.ExternalId, type: nameof(String), value: itemExternalId));
 
             // Set the EventExternalId - this is an ID that uniquely identifies the audit event in the content source.
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.EventExternalId, value: Guid.NewGuid().ToString()));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.EventType, value: "Reference Audit Event"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.EventExternalId, type: nameof(String), value: Guid.NewGuid().ToString()));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.EventType, type: nameof(String), value: "Reference Audit Event"));
 
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.UserName, value: "Record ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.UserId, value: "Record ReferenceConnectorSF"));
-            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.Created, value: DateTime.UtcNow.ToString("O")));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.UserName, type: nameof(String), value: "Record ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.UserId, type: nameof(String), value: "Record ReferenceConnectorSF"));
+            submitContext.CoreMetaData.Add(new SubmissionMetaDataModel(Fields.AuditEvent.Created, type: nameof(DateTime), value: DateTime.UtcNow.ToString("O")));
             
             // Set source metadata on the audit event
             submitContext.SourceMetaData.Add(new SubmissionMetaDataModel("Checkin Comments", type: nameof(String), value: "Some checkin comments"));
