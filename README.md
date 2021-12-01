@@ -14,22 +14,20 @@ For example, if you log in to your Records365 vNext tenant as `john.doe@mytenant
 a new App Registration in the `mytenant.onmicrosoft.com` directory. Provide the following details when creating the App Registration:
 
 *  **Name**: Anything you like
-*  **Application type**: Web app/API
-*  **Sign on URL**: Any valid URL - it doesn't really matter, this value isn't used anywhere
+*  **Supported Account Type**: Choose a single tenant type, e.g. "Accounts in this organizational directory only".
 
-Once the App Registration is created, take note of the value for `Application ID` and then navigate to `Settings`.
 
-Navigate to `Properties` and take note of the `App ID URI` value.
+Once the App Registration is created, take note of the value for `Application ID` and then navigate to `Overview`. Set `Application ID URI` to a valid value, e.g. `"https://RefConnector.mytenant.onmicrosoft.com/<Application ID Value>"`.
 
-Finally, under `Keys`, create a new Key and take note of its value. 
+Navigate to `Certificates & secrets` and create a new client secret, taking note of the secret value.
 
 ## Update Settings in ReferenceConnectorSF
 
-In the ReferenceConnectorSF solution, open `ConnectorApiAuthHelper.cs` and plug in the appropriate values from the Azure Active Directory App Registration created above. Ensure the following values are updated:
-*  **Client ID**: this is the `Application ID` of the App
-*  **Client Secret**: this is the `Key` 
+In the ReferenceConnectorSF solution, open `ConnectorApiAuthHelper.cs` and copy in the appropriate values from the Azure Active Directory App Registration created above. Ensure the following values are updated:
+*  **Client ID**: the `Application ID` value of the App
+*  **Client Secret**:  the client secret value
 *  **Authentication Resource**: the `App ID URI` of the App
-*  **Connector API URL**: the Connectors API of your Records365 environment
+*  **Connector API URL**: the Connectors API URL from your Records365 environment
 
 ## Deploy ReferenceConnectorSF
 
@@ -64,7 +62,7 @@ Click "Add Connector", then click the ellipsis menu in the top right and select 
 *  **Allow Client ID Override**: No.
 *  **Notification Method**: Push.
 *  **Notification Authentication Resource**: The `App ID URI` of the Azure Active Directory App Registration created above.
-*  **Notification URL**: The ngrok URL given above, with "/api/" appended to it. For example, if ngrok is listening on https://abcdefg.ngrok.io, the Notification URL is https://abcdefg.ngrok.io/api/. Note that if ngrok is restarted, this value will need to be updated with the new URL.
+*  **Notification URL**: The ngrok URL given above, **with "/api/" appended to it**. For example, if ngrok is listening on https://abcdefg.ngrok.io, the Notification URL is https://abcdefg.ngrok.io/api/. Note that if ngrok is restarted, this value will need to be updated with the new URL.
 *  **Notification Types**: Check "Item Destroyed", "Connector Created", "Connector Updated", "Connector Deleted", and leave others blank.
 *  **Logo**: Upload a 360px by 160px image.
 *  **Icon**: Upload a 70px by 70px image.
@@ -116,4 +114,6 @@ Attach the Visual Studio debugger to the ReferenceConnectorSF processes:
 *  ReferenceconnectorWorkerService.exe
 
 Once attached, set breakpoints and step through the code. 
+
+If ngrok is restarted, update the `notificationUrl` element for the ConnectorType, using the GET/PUT management API endpoints described above.
 

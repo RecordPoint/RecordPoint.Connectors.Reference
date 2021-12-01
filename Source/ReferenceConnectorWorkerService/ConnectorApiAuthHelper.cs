@@ -9,7 +9,8 @@ namespace ReferenceConnectorWorkerService
         {
             return new ApiClientFactorySettings
             {
-                ConnectorApiUrl = "" // TODO: add endpoint address here
+                ConnectorApiUrl = "", // TODO: add endpoint address here
+                ServerCertificateValidation = false
             };
         }
 
