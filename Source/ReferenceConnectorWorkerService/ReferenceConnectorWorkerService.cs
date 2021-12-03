@@ -9,6 +9,7 @@ using RecordPoint.Connectors.SDK.Client.Models;
 using ReferenceConnectorServiceContracts;
 using System.Collections.Concurrent;
 using RecordPoint.Connectors.SDK.SubmitPipeline;
+using RecordPoint.Connectors.SDK.Providers;
 using System;
 using RecordPoint.Connectors.SDK.Client;
 
@@ -54,8 +55,14 @@ namespace ReferenceConnectorWorkerService
 
             _aggregationSubmitPipeline = aggregationFilterPipelineElement;
 
-            var httpSubmitBinaryElement = new HttpSubmitBinaryPipelineElement(null);
-            httpSubmitBinaryElement.ApiClientFactory = apiClientFactory;
+            var circuitBreakerOpts = new CircuitBreakerOptions();
+            var httpSubmitBinaryElement = new DirectSubmitBinaryPipelineElement(null)
+            {
+                ApiClientFactory = apiClientFactory,
+                CircuitProvider = new AzureBlobRetryProviderWithCircuitBreaker(circuitBreakerOpts, true),
+                RetryProvider = new AzureBlobRetryProviderWithCircuitBreaker(circuitBreakerOpts, true),
+                // Log = optional logger
+            };
 
             var binaryFilterPipelineElement = new FilterPipelineElement(httpSubmitBinaryElement);
 

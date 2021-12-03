@@ -308,6 +308,7 @@ namespace ReferenceConnectorWorkerService
                     // Set the "FileName" of the binary. This field is optional. When it is provided, end users will 
                     // get this filename by default when they download the binary from Records365 vNext.
                     binarySubmitContext.FileName = "file.txt";
+                    binarySubmitContext.FileHash = "Optional MD5 Hash here";
                 }
 
                 var fileContent = "This is a binary file!";
