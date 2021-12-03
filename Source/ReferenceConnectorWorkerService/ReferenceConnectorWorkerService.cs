@@ -60,7 +60,8 @@ namespace ReferenceConnectorWorkerService
             {
                 ApiClientFactory = apiClientFactory,
                 CircuitProvider = new AzureBlobRetryProviderWithCircuitBreaker(circuitBreakerOpts, true),
-                RetryProvider = new AzureBlobRetryProviderWithCircuitBreaker(circuitBreakerOpts, true)
+                RetryProvider = new AzureBlobRetryProviderWithCircuitBreaker(circuitBreakerOpts, true),
+                // Log = optional logger
             };
 
             var binaryFilterPipelineElement = new FilterPipelineElement(httpSubmitBinaryElement);
