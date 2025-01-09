@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MimeTypesMap" Version="1.0.8" />
+    <PackageReference Include="RecordPoint.Connectors.SDK.Caching" Version="2.2.45" />
+    <PackageReference Include="RecordPoint.Connectors.SDK" Version="2.2.45" />
+    <PackageReference Include="RecordPoint.Connectors.SDK.Databases.Sqlite" Version="2.2.45" />
+    <PackageReference Include="RecordPoint.Connectors.SDK.Toggles.LaunchDarkly" Version="2.2.45" />
+    <PackageReference Include="RecordPoint.Connectors.SDK.WorkQueue.RabbitMq" Version="2.2.45" />
+  </ItemGroup>
+
+</Project>

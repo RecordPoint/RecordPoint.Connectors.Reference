@@ -1,119 +1,138 @@
-# ReferenceConnectorSF
-A reference implementation of a multi-tenanted cloud connector using .NET Core and Azure Service Fabric.
+# Introduction 
+This project is a template for creating a Connector for Recordpoint using the Connector SDK ([GitHub link][github-link], [DevOps link][devops-link]). 
 
-Requires Visual Studio 15.8.1 or later.
+The README for the Connector SDK covers essential concepts needed to build a connector. It is required reading and can be accessed via the provided SDK links. Topics include an overview of the RecordPoint platform, the workings of the Connector SDK, and the objectives of a connector connecting to the platform.
 
-# Deployment QuickStart
+## Caveat
 
-This QuickStart guide will show you how to deploy ReferenceConnectorSF to a local Service Fabric cluster and set it up to submit content to a Records365 tenant.
+As this is a "demo" connector, there are some compromises in the design, or places where things would be done differently in a real connector. 
+These are called out with code comments.
 
-## Create an Azure AD Application
+# Installation guide
 
-In the [Azure Portal](https://portal.azure.com), create a new App Registration in the Azure Active Directory that is linked to your Records365 vNext tenant. 
-For example, if you log in to your Records365 vNext tenant as `john.doe@mytenant.onmicrosoft.com`, then create 
-a new App Registration in the `mytenant.onmicrosoft.com` directory. Provide the following details when creating the App Registration:
+## Prerequisites
+- Chocolatey
+- .NET 8 SDK
+- Eiger (RecordPoint) environment to connect to (local or SINT)
 
-*  **Name**: Anything you like
-*  **Supported Account Type**: Choose a single tenant type, e.g. "Accounts in this organizational directory only".
+## Process 
 
+1. Open Powershell as administrator to this dir.
+2. Run `Setup.ps1`.
 
-Once the App Registration is created, take note of the value for `Application ID` and then navigate to `Overview`. Set `Application ID URI` to a valid value, e.g. `"https://RefConnector.mytenant.onmicrosoft.com/<Application ID Value>"`.
+> After running the setup script, RabbitMq will always run at computer startup.
+> 
+> See [here][rabbitmq-service] for how to disable this behavior. If you do this, you will have to start RabbitMq before running the Reference Connector.
+>
+> You could also uninstall the RabbitMq when you're done with the Reference Connector. You can run Setup.ps1 again if you need to reinstall.
 
-Navigate to `Certificates & secrets` and create a new client secret, taking note of the secret value.
+3. Open appsettings.json in a text editor.
+4. Open [http://localhost:15672/][rabbitmq-localhost] in the browser
+   - Login with username 'admin' and password 'admin'
+   - Find the cluster name in the top right - e.g. "rabbit@WIN-2034939"
+   - Copy the bit after the @ - e.g. "WIN-2034939"
+   - Use for this appsettings property: RabbitMqOptions.HostName
+5. Get the Entra ID settings. 
+   - If you want to connect to a local Eiger environment, go to the 'Creating an Entra ID app' section below.
+   - If you want to connect to SINT, go to 'Getting access to the SINT Entra ID application' below.
+6. Create one or more connector configs in Records365. 
+   - See 'Creating a config' section below.
+7. Create a directory to contain test files that will be synced to RecordPoint.
+   - Copy the full path into this appsettings property: ConnectorConfigs -> Directory
+   - Create a subdirectory. *(This will become a 'Channel'.)*
+   - Create a subdirectory within that subdirectory. *(This will become an 'Aggregation'.)*
+   - Create one or more text files within this subdirectory. *(This will become a 'Record'.)*
+   - *(You may create as many Channels, Aggregations and Records as you like. Records must have a parent Aggregation, and Aggregations a parent Channel, or they won't be picked up by the connector.)*
+8. Open Visual Studio.
+   - Enable Multi Project Launch Configuration [here][multi-project-launch]
+   - Run the connector using the "All Services" build profile.
+   - *(This is required to set up RabbitMq queues.)*
 
-## Update Settings in ReferenceConnectorSF
+The app is now ready for use. 
+You may want to read "Customizing the behavior of the SDK" below.
 
-In the ReferenceConnectorSF solution, open `ConnectorApiAuthHelper.cs` and copy in the appropriate values from the Azure Active Directory App Registration created above. Ensure the following values are updated:
-*  **Client ID**: the `Application ID` value of the App
-*  **Client Secret**:  the client secret value
-*  **Authentication Resource**: the `App ID URI` of the App
-*  **Connector API URL**: the Connectors API URL from your Records365 environment
+### Creating an Entra ID application 
+This is only required for local environments. 
 
-## Deploy ReferenceConnectorSF
+1. Go to Azure Portal -> Entra ID -> App Registrations
+2. Create a new App Registration 
+   - Use "Accounts in any organizational directory (Any Entra ID - Multitenant)" setting 
+   - Use "Web" redirect URI with value "https://localhost/administration/connectors/callback"
+3. Authentication tab -> Tick "Access tokens"
+4. Certificates & Secrets tab -> Create secret with expiry far in the future
+5. Copy client secret value
+6. Copy client ID (main page for app registration)
+7. Edit appsettings:
+   - Set Configuration.ClientId and Configuration.ClientSecret based on Entra ID app details
+   - Set Configuration.Audience to "https://rpfabricdev.onmicrosoft.com/rpfabric"
+   - Set Configuration.ConnectorApiUrl to "https://localhost:44366/connector/"
 
-Clone the repository, open in Visual Studio, build and deploy to your local Service Fabric cluster. The application should be "green" in Service Fabric Explorer.
+### Getting access to the SINT Entra ID application
+An Entra ID application for connecting to SINT has already been created.
 
-## Install ngrok 
+For developers with no access to Recordpoint's Azure subscriptions, someone with access to Portal must perform the following steps for you:
 
-The Records365 Connector Framework uses webhooks to send notifications to the connector. Records365 can not send webhook calls directly into a local development environment; we need to use a tunnel. ngrok provides this tunnel. 
+1. Open Azure Portal 
+2. Entra ID -> App Registrations -> "ReferenceConnectorTest (SINT)" (Client ID b7eda9b6-3384-4104-a61a-50263032f49b)
+3. Certificates & Secrets tab -> Create secret for this developer with expiry far in the future. (Each developer should have their own secret)
+4. Copy client secret value & client ID, send to developer.
+5. The developer should edit their appsettings like so:
+   - Set Configuration.ClientId and Configuration.ClientSecret based on Entra ID app details
+   - Set Configuration.Audience to "https://recordpoint.com/rpfabric-sint"
+   - Set Configuration.ConnectorApiUrl to "https://connector-int.r365.one/connector/"
+6. When the developer should no longer have access, revoke the secret. 
 
-Sign up and download ngrok to your local environment from [here](https://ngrok.com/). The free plan is sufficient for our purposes. Ensure the auth token setup step is run. 
+### Creating a connector
 
-Run ngrok with the following command line:
+A connector (or connector config) is a list of settings (which a customer supplies in Records365) to link an account in the content source to the connector type.
 
-    ngrok http 8555 
+The Reference Connector can (and all connector types should be able to) monitor more than one connector config.
 
-This sets up a tunnel to local port 8555; this is the port that the ReferenceConnectorSF webhook listener API is listening on.
+1. Open Records365.
+2. Go to the cog in the top right -> Add connector -> "..." in the top right -> "New Connector Type"
+3. Set Client ID to the Entra ID app client ID.
+4. Change Notification Method to "Pull".
+5. Fill in the rest of the fields. Any values are fine. (Do not change Notification Types or Allow Client ID Override.)
+6. Save. 
+7. Add connector -> select the type you just made -> Fill in the fields however you like
+8. Enable and save.
+9. Click on the connector and download the settings.
+10. Open the settings file.
+11. Copy the contents into a new node in appsettings -> ConnectorConfigs. Here's an example with multiple connector configs:
+```
+"ConnectorConfigs": [
+   {
+      "Directory": "C:\\Users\\MyUsername\\Documents\\Test Files\\ReferenceConnector\\Tenant2",
+      "ConnectorId": "d40eaf72-7200-441c-a1c5-8d55539a39d9",
+      "ConnectorTypeId": "edcf148b-44e5-405e-be2d-da4154182b8f",
+      "TenantId": "689049ca-b5cb-45db-87d8-7f54852570d1",
+      "TenantDomainName": "rptenant2.onmicrosoft.com",
+      "ConnectorApiUrl": "https://localhost:44366/connector/",
+      "ClientId": "1cd68a5a-d4a9-4afb-99c8-7d817d1ae57c",
+      "Audience": "https://rpfabricdev.onmicrosoft.com/rpfabric"
+   },
+   {
+      "Directory": "C:\\Users\\MyUsername\\Documents\\Test Files\\ReferenceConnector\\Tenant1",
+      "ConnectorId": "62f4df1d-e2fd-49b5-9bcd-dc867dad7f84",
+      "TenantId": "a7adb3ae-6a58-4731-b628-5743f6244a28",
+      "TenantDomainName": "rptenant1.onmicrosoft.com",
+      "ConnectorApiUrl": "https://localhost:44366/connector/",
+      "ClientId": "1cd68a5a-d4a9-4afb-99c8-7d817d1ae57c",
+      "Audience": "https://rpfabricdev.onmicrosoft.com/rpfabric",
+      "DefaultIngestionMode": "Selected",
+      "Included": [ "Channel2" ],
+      "ContentRegistrationMode":  "All"
+   }
+],
+```
 
-When ngrok starts, it will output a publicly accessible HTTPS URL that ngrok is listening on. Take note of this URL.
+To create another config in the same R365 tenant, repeat steps 7-11.
+To create another config in a different R365 tenant, repeat all steps.
 
-Note that if ngrok is restarted, a new URL will be generated.
-
-## Register a Connector Type in Records365
-
-In Records365, log in as an Application Administrator. Click the settings cog, then click "Connectors" on the left navigation menu. 
-Click "Add Connector", then click the ellipsis menu in the top right and select "New Connector Type". Provide the following details:
-
-*  **Name**: Name of your connector type.
-*  **Short Name**: Short name of your connector type.
-*  **Content Source**: Name of the content source that your connector adapts to. 
-*  **Publisher**: Name of the organization that publishes your connector type.
-*  **Client ID**: The `Application ID` from the Azure Active Directory App Registration created above.
-*  **Allow Client ID Override**: No.
-*  **Notification Method**: Push.
-*  **Notification Authentication Resource**: The `App ID URI` of the Azure Active Directory App Registration created above.
-*  **Notification URL**: The ngrok URL given above, **with "/api/" appended to it**. For example, if ngrok is listening on https://abcdefg.ngrok.io, the Notification URL is https://abcdefg.ngrok.io/api/. Note that if ngrok is restarted, this value will need to be updated with the new URL.
-*  **Notification Types**: Check "Item Destroyed", "Connector Created", "Connector Updated", "Connector Deleted", and leave others blank.
-*  **Logo**: Upload a 360px by 160px image.
-*  **Icon**: Upload a 70px by 70px image.
-
-Click Save. Your custom connector type will now appear in the Connectors Gallery.
-
-## Add Filters Configuration to the Connector Type
-
-On the Records365 Management API for your environment, call 
-
-    GET /api/ConnectorTypes
-
-And locate the connector type created above in the response. Copy only the connector type created above, and modify the `manifest` property such that it reads like so:
-    
-    "manifest": {
-      "connectorTypeManifestUIElements": [
-          {
-            "icon": "filters",
-            "key": "Filters",
-            "valuesCanBeChangedAfterConnectorEnabled": false,
-            "type": "Filters",
-            "position": 0,
-            "properties": [],
-            "translations": []
-          }]
-	},
-
-Pass the updated connector type JSON to the body of
-
-    PUT /api/ConnectorTypes
-  
-Note the Filters configuration is part of a range of configuration options available in the Records365 Connector Framework. See [Configuration Manifest](https://github.com/RecordPoint/RecordPoint.Connectors.Framework.Doc/wiki/05.-Connector-Type-Configuration-Manifest) for more details.
-
-## Create a Connector 
-
-Click the Add button on your new custom connector type. A new instance of the connector will be created. This should have sent a webhook notification to ReferenceConnectorSF in your local environment via ngrok. This can be verified in the ngrok window - there should be a line at the bottom of the output that reads 
-
-    POST /api/notifications      200 OK
-
-Next, enable the connector in Records365. This will send another webhook notification to ReferenceConnectorSF, so we should see another line in the ngrok output after enabling the connector.
-
-At this point ReferenceConnectorSF should be submitting records, aggregations, audit events and binaries to your tenant. Content is submitted once per minute.
-
-## Debug ReferenceConnectorSF
-
-Attach the Visual Studio debugger to the ReferenceConnectorSF processes:
-
-*  ReferenceConnectorService.exe
-*  ReferenceconnectorWorkerService.exe
-
-Once attached, set breakpoints and step through the code. 
-
-If ngrok is restarted, update the `notificationUrl` element for the ConnectorType, using the GET/PUT management API endpoints described above.
-
+[github-link]: https://github.com/RecordPoint/RecordPoint.Connectors.SDK
+[devops-link]: https://dev.azure.com/recordpoint/Connectors/_git/RecordPoint.Connectors.SDK
+[reference-connector]: https://dev.azure.com/recordpoint/Connectors/_git/RecordPoint.Connectors.SDK?path=/ReferenceConnector
+[sdk-reference-connector-confluence]: https://records.atlassian.net/wiki/spaces/CSG/pages/2506194947/SDK+Reference+Connector
+[rabbitmq-service]: https://www.rabbitmq.com/docs/man/rabbitmq-service.8
+[rabbitmq-localhost]: http://localhost:15672/
+[multi-project-launch]: https://devblogs.microsoft.com/visualstudio/multi-project-launch-configuration/

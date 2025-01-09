@@ -1,0 +1,26 @@
+{
+  "Reference Connector-Connector": {
+    "Value": true,
+    "UserKeyOverrides": {
+      "Tenant2": false
+    }
+  },
+  "Killswitch-Reference Connector-BinarySubmission": {
+    "Value": false,
+    "UserKeyOverrides": {
+      "Tenant2": true
+    }
+  },
+  "Reference Connector-Content-Protection": {
+    "Value": true,
+    "UserKeyOverrides": {
+      "Tenant1": true
+    }
+  },
+  "Killswitch-Reference Connector": {
+    "Value": false,
+    "UserKeyOverrides": {
+      "Tenant1": true
+    }
+  }
+}
