@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReferenceConnector.Common\RecordPoint.Connectors.Reference.Common.csproj" />
+    <ProjectReference Include="..\RecordPoint.Connectors.Reference.Common\RecordPoint.Connectors.Reference.Common.csproj" />
   </ItemGroup>
 
 </Project>
