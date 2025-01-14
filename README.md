@@ -67,21 +67,6 @@ This is only required for local environments.
    - Set Configuration.Audience to "https://rpfabricdev.onmicrosoft.com/rpfabric"
    - Set Configuration.ConnectorApiUrl to "https://localhost:44366/connector/"
 
-### Getting access to the SINT Entra ID application
-An Entra ID application for connecting to SINT has already been created.
-
-For developers with no access to Recordpoint's Azure subscriptions, someone with access to Portal must perform the following steps for you:
-
-1. Open Azure Portal 
-2. Entra ID -> App Registrations -> "ReferenceConnectorTest (SINT)" (Client ID b7eda9b6-3384-4104-a61a-50263032f49b)
-3. Certificates & Secrets tab -> Create secret for this developer with expiry far in the future. (Each developer should have their own secret)
-4. Copy client secret value & client ID, send to developer.
-5. The developer should edit their appsettings like so:
-   - Set Configuration.ClientId and Configuration.ClientSecret based on Entra ID app details
-   - Set Configuration.Audience to "https://recordpoint.com/rpfabric-sint"
-   - Set Configuration.ConnectorApiUrl to "https://connector-int.r365.one/connector/"
-6. When the developer should no longer have access, revoke the secret. 
-
 ### Creating a connector
 
 A connector (or connector config) is a list of settings (which a customer supplies in Records365) to link an account in the content source to the connector type.
