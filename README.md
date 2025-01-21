@@ -1,5 +1,5 @@
 # Introduction 
-This project is a template for creating a Connector for Recordpoint using the Connector SDK ([GitHub link][github-link], [DevOps link][devops-link]). 
+This project is a template for creating a Connector for Recordpoint using the Connector SDK ([GitHub link][github-link]). 
 
 The README for the Connector SDK covers essential concepts needed to build a connector. It is required reading and can be accessed via the provided SDK links. Topics include an overview of the RecordPoint platform, the workings of the Connector SDK, and the objectives of a connector connecting to the platform.
 
@@ -115,9 +115,6 @@ To create another config in the same R365 tenant, repeat steps 7-11.
 To create another config in a different R365 tenant, repeat all steps.
 
 [github-link]: https://github.com/RecordPoint/RecordPoint.Connectors.SDK
-[devops-link]: https://dev.azure.com/recordpoint/Connectors/_git/RecordPoint.Connectors.SDK
-[reference-connector]: https://dev.azure.com/recordpoint/Connectors/_git/RecordPoint.Connectors.SDK?path=/ReferenceConnector
-[sdk-reference-connector-confluence]: https://records.atlassian.net/wiki/spaces/CSG/pages/2506194947/SDK+Reference+Connector
 [rabbitmq-service]: https://www.rabbitmq.com/docs/man/rabbitmq-service.8
 [rabbitmq-localhost]: http://localhost:15672/
 [multi-project-launch]: https://devblogs.microsoft.com/visualstudio/multi-project-launch-configuration/
