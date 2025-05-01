@@ -5,7 +5,14 @@ using RecordPoint.Connectors.SDK.ContentManager;
 using RecordPoint.Connectors.SDK.R365;
 
 namespace RecordPoint.Connectors.Reference.RecordSubmission;
-//This service handles the submission of the records to the RecordPoint platform. It processes the records put on the record submission queue by the Content Registration or Content Synchronisation services.
+
+/// <summary>
+/// This service handles the submission of records to the RecordPoint platform.
+/// In the reference connector, records are documents in a file system.
+/// </summary>
+/// <remarks>
+/// Records are passed into this service by the Content Sync and Content Reg services.
+/// </remarks>
 public static class Program
 {
     public static void Main(string[] args)
@@ -18,9 +25,10 @@ public static class Program
     private static IHostBuilder CreateConnectorHostBuilder(string[] args)
     {
         var builder = HostBuilderHelper.CreateConnectorHostBuilder(args);
+
         // The Record Submission service does not communicate with the content source,
         // so it does not require any custom code. 
-        // All you need to implement the service is these methods:
+        // All you need to implement the service is this DI code:
         builder.HostBuilder
             .UseR365AppSettingsConfiguration()
             .UseR365Integration()

@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="RecordPoint.Connectors.SDK.WebHost" Version="2.2.45" />
+    <PackageReference Include="RecordPoint.Connectors.SDK.WebHost" Version="2.3.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RecordPoint.Connectors.Reference.Common\RecordPoint.Connectors.Reference.Common.csproj" />

@@ -11,8 +11,9 @@ namespace RecordPoint.Connectors.Reference.Notifications;
 /// Adds connector configurations listed in the user's appsettings file to the connector config database.
 /// </summary>
 /// <remarks>
-/// This is only required for the Reference Connector
-/// (because it has no way to receive notifications for a config until it knows it exists).
+/// NOT NEEDED OUTSIDE REFERENCE CONNECTOR.
+/// (The Ref Connector needs this because it has no way to receive notifications for a config
+/// until it knows it exists.)
 /// </remarks>
 public class ConnectorConfigCreatorService : IHostedService
 {

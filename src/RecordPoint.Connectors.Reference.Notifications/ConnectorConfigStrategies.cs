@@ -10,7 +10,8 @@ namespace RecordPoint.Connectors.Reference.Notifications;
 /// to work better with the Ref Connector.
 /// </summary>
 /// <remarks>
-/// No other connector types will need any of the classes in this file.
+/// NOT NEEDED OUTSIDE REFERENCE CONNECTOR.
+/// (Same goes for all the classes in this file)
 /// </remarks>
 public class RefConnectorConfigUpdatedHandler : ConnectorConfigUpdatedHandler
 {
@@ -34,6 +35,9 @@ public class RefConnectorConfigUpdatedHandler : ConnectorConfigUpdatedHandler
     }
 }
 
+/// <remarks>
+/// NOT NEEDED OUTSIDE REFERENCE CONNECTOR.
+/// </remarks>
 public class RefConnectorConfigCreatedHandler : ConnectorConfigCreatedHandler
 {
     private readonly IConnectorConfigurationManager _configManager;

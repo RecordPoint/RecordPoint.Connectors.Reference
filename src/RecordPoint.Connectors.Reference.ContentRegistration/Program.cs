@@ -3,8 +3,16 @@ using RecordPoint.Connectors.Reference.Common;
 using RecordPoint.Connectors.SDK.ContentManager;
 
 namespace RecordPoint.Connectors.Reference.ContentRegistration;
-// This service queues up aggregations and records to be submitted to the RecordPoint platform. It is similar to the ContentSyncronisation service
-// in what it does,however it is only run once and deals with historical content exclusively in the discovered channels.
+
+/// <summary>
+/// This service queries the content source to find data that should be submitted to the RecordPoint platform.
+/// It is similar to the ContentSynchronisation service.
+/// Unlike Content Sync, it runs only once, submitting ONLY historical data (for the channels requested).
+/// </summary>
+/// <remarks>
+/// This service does not submit data to RecordPoint.
+/// It sends data to the Submission services (e.g. AggregationSubmission), which then submit the data.
+/// </remarks>
 public static class Program
 {
     public static void Main(string[] args)

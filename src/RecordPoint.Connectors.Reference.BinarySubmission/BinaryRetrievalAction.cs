@@ -9,18 +9,18 @@ public class BinaryRetrievalAction : IBinaryRetrievalAction
 {
     /// <summary>
     /// Fetches a stream of the binary from the content source.
+    /// The Connectors.SDK will handle submission of the binary to Records365
+    /// using the returned stream and metadata.
     /// </summary>
     /// <remarks>
-    /// binaryMetaInfo contains the metadata of any binaries returned as part of Records in 
-    /// Content Registration and Content Synchronisation.
+    /// binaryMetaInfo contains the metadata of any binaries that were returned
+    /// as part of Records (in Content Registration and Content Synchronisation).
     /// </remarks>
     public async Task<BinaryRetrievalResult> ExecuteAsync(ConnectorConfigModel connectorConfiguration,
         BinaryMetaInfo binaryMetaInfo, CancellationToken cancellationToken)
     {
         try
         {
-            // The Connectors.SDK will handle submission of the binary to Records365
-            // using the returned stream and metadata.
             return await FetchBinary(connectorConfiguration, binaryMetaInfo, cancellationToken);
         }
         catch(Exception ex)
@@ -44,11 +44,11 @@ public class BinaryRetrievalAction : IBinaryRetrievalAction
         {
             return new BinaryRetrievalResult
             {
-                ResultType = BinaryRetrievalResultType.Deleted
+                ResultType = BinaryRetrievalResultType.Abandoned
             };
         }
 
-        // Make sure not to make the stream disposable (e.g. via 'using')
+        // Make sure not to make the stream disposable (e.g. via 'using').
         // The Connectors.SDK will handle stream disposal.
         var stream = File.OpenRead(path);
 
@@ -59,7 +59,7 @@ public class BinaryRetrievalAction : IBinaryRetrievalAction
             await stream.DisposeAsync();
             return new BinaryRetrievalResult
             {
-                ResultType = BinaryRetrievalResultType.ZeroBinary
+                ResultType = BinaryRetrievalResultType.Abandoned
             };
         }
 

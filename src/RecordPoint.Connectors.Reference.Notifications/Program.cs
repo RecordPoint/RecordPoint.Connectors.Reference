@@ -6,8 +6,12 @@ using RecordPoint.Connectors.SDK.Notifications;
 using RecordPoint.Connectors.SDK.Notifications.Handlers;
 
 namespace RecordPoint.Connectors.Reference.Notifications;
-//This is the service responsible for receiving notifications about operations that occur in the RecordPoint platform
-//(e.g. created or edited connectors, disposed records.)'.
+
+/// <summary>
+/// The Notification Service is responsible for receiving notifications about actions
+/// that users perform in the RecordPoint platform which affect the connector
+/// (e.g. created or edited connector configs, disposed records).
+/// </summary>
 public static class Program
 {
     public static void Main(string[] args)
@@ -21,12 +25,12 @@ public static class Program
     {
         var builder = HostBuilderHelper.CreateConnectorHostBuilder(args);
 
-        // Use Pull Notifications
-        // Most connectors would use Webhook notifications instead -
-        // use UseWebhookNotifications() instead of UsePolledNotifications().
+        // The Reference Connector uses Pull/Polling notifications.
+        // Other connectors should use Webhook notifications (unless otherwise indicated).
+        // To do this, use UseWebhookNotifications()
+        // instead of UsePolledNotifications()
         builder.HostBuilder
             .UseR365AppSettingsConfiguration()
-            //This starts sends off a Content Registration Request when a connector is updated
             .UsePolledNotifications<ContentRegistrationRequestAction>();
 
         AddReferenceConnectorNotificationServices(builder.HostBuilder);
@@ -35,11 +39,12 @@ public static class Program
     }
 
     /// <summary>
-    /// Contains DI that is not required outside the ReferenceConnector.
-    /// (See ConnectorConfigCreatorService for more info.)
+    /// Contains DI that is NOT REQUIRED outside the ReferenceConnector.
     /// </summary>
     private static void AddReferenceConnectorNotificationServices(IHostBuilder builder)
     {
+        // Override the notification DI stuff that the SDK registered.
+        // See ConnectorConfigCreatorService for an explanation of why.
         builder.ConfigureServices((hostContext, services) =>
         {
             services.Configure<List<ConnectorConfigOptions>>(

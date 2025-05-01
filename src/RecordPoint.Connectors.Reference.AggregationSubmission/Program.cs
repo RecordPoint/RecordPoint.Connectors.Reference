@@ -5,8 +5,15 @@ using RecordPoint.Connectors.SDK.ContentManager;
 using RecordPoint.Connectors.SDK.R365;
 
 namespace RecordPoint.Connectors.Reference.AggregationSubmission;
-// The aggregation submission service submits aggregrations, these represent a collection of records that are submitted to RecordPoint.
-// For the reference connector aggregations would be a folder within a directory that contains documents.
+
+/// <summary>
+/// The aggregation submission service submits aggregations to RecordPoint.
+/// Aggregations represent a collection of records.
+/// In the reference connector, aggregations are a folder that contains documents.
+/// </summary>
+/// <remarks>
+/// Aggregations are passed into this service by the Content Sync and Content Reg services.
+/// </remarks>
 public static class Program
 {
     public static void Main(string[] args)
@@ -19,10 +26,10 @@ public static class Program
     private static IHostBuilder CreateConnectorHostBuilder(string[] args)
     {
         var builder = HostBuilderHelper.CreateConnectorHostBuilder(args);
-
-        // The Aggregation Submission service does not communicate with the content source,
+        
+        // This service does not communicate with the content source,
         // so it does not require any custom code. 
-        // All you need to implement the service is these methods:
+        // All you need to implement the service is this DI code:
         builder.HostBuilder
             .UseR365AppSettingsConfiguration()
             .UseR365Integration()

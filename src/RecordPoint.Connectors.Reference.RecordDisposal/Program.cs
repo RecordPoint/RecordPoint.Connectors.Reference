@@ -2,28 +2,28 @@
 using RecordPoint.Connectors.Reference.Common;
 using RecordPoint.Connectors.SDK.ContentManager;
 
-namespace RecordPoint.Connectors.Reference.RecordDisposal
-//This service is responsible for responding to disposal requests from the RecordPoint platform.
-//I.e. if a record is disposed on the platform, this service will handle the disposal of the record in the content source.
+namespace RecordPoint.Connectors.Reference.RecordDisposal;
+
+/// <summary>
+/// This service is responsible for handling disposal requests from the RecordPoint platform
+/// by disposing records in the content source.
+/// </summary>
+public static class Program
 {
-    public static class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
-        {
-            CreateConnectorHostBuilder(args)
-                .Build()
-                .Run();
-        }
+        CreateConnectorHostBuilder(args)
+            .Build()
+            .Run();
+    }
 
-        private static IHostBuilder CreateConnectorHostBuilder(string[] args)
-        {
-            var builder = HostBuilderHelper.CreateConnectorHostBuilder(args);
+    private static IHostBuilder CreateConnectorHostBuilder(string[] args)
+    {
+        var builder = HostBuilderHelper.CreateConnectorHostBuilder(args);
 
-            //Setup Reference Connector Content Services
-            builder.HostBuilder
-                .UseRecordDisposalOperation<RecordDisposalAction>();
+        builder.HostBuilder
+            .UseRecordDisposalOperation<RecordDisposalAction>();
 
-            return builder.HostBuilder;
-        }
+        return builder.HostBuilder;
     }
 }

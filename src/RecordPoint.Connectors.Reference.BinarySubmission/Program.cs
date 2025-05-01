@@ -5,8 +5,15 @@ using RecordPoint.Connectors.SDK.ContentManager;
 using RecordPoint.Connectors.SDK.R365;
 
 namespace RecordPoint.Connectors.Reference.BinarySubmission;
-//This service is responsible for submitting the actual binary content of the records to the RecordPoint platform. The classes in this 
-//project have further detailed comments and descriptions of what a service like this would entail.
+
+/// <summary>
+/// This service is responsible for submitting the actual binary content of the records
+/// to the RecordPoint platform.
+/// </summary>
+/// <remarks>
+/// Binary metadata is passed into this service by the Content Sync and Content Reg services.
+/// This metadata is then used to fetch the binaries and pass onto RecordPoint.
+/// </remarks>
 public static class Program
 {
     public static void Main(string[] args)
@@ -20,9 +27,11 @@ public static class Program
     {
         var builder = HostBuilderHelper.CreateConnectorHostBuilder(args);
 
-        // If you don't need any post-submission cleanup:
-        // - use UseBinarySubmissionOperation<BinaryRetrievalAction>() here
-        // - skip implementing BinarySubmissionCallbackAction
+        // If you don't need post-submission cleanup:
+        // - use UseBinarySubmissionOperation<BinaryRetrievalAction>()
+        //   (instead of UseBinarySubmissionOperation<BinaryRetrievalAction, BinarySubmissionCallbackAction>)
+        // - do not implement BinarySubmissionCallbackAction
+        // Refer BinarySubmissionCallbackAction for more details.
         builder.HostBuilder
             .UseR365AppSettingsConfiguration()
             .UseR365Integration()

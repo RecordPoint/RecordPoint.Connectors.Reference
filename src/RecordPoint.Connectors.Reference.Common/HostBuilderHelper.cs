@@ -7,11 +7,10 @@ using RecordPoint.Connectors.SDK.Connectors;
 using RecordPoint.Connectors.SDK.Content;
 using RecordPoint.Connectors.SDK.Context;
 using RecordPoint.Connectors.SDK.Databases.Sqlite;
-using RecordPoint.Connectors.SDK.Observability;
 using RecordPoint.Connectors.SDK.Time;
 using RecordPoint.Connectors.SDK.Work;
 using RecordPoint.Connectors.SDK.WorkQueue.RabbitMq;
-using Microsoft.Extensions.DependencyInjection;
+using RecordPoint.Connectors.SDK.Observability.Console;
 using RecordPoint.Connectors.SDK.Observability.Null;
 using RecordPoint.Connectors.SDK.Toggles.Development.LocalJsonToggles;
 
@@ -31,7 +30,7 @@ public class HostBuilderHelper
     {
         // Read settings from appsettings file
         // (Outside the Ref Connector, should read from environment variables or Key Vault - see docs)
-        var settingsPath = Path.GetFullPath("../../../../appsettings.json");
+        var settingsPath = Path.GetFullPath("../../../../../appsettings.json");
         var configurationBuilder = ConnectorConfigurationBuilder
             .CreateConfigurationBuilder(args, Assembly.GetExecutingAssembly())
             .AddJsonFile(settingsPath);
@@ -75,15 +74,9 @@ public class HostBuilderHelper
             .UseRabbitMqWorkQueue()
             .UseRabbitMqDeadLetterQueueService();
 
-
         // Custom settings for the Reference Connector
         // (Should not be required for other connectors)
-        hostBuilder.ConfigureServices((_, services) =>
-        {
-            // Only required when NOT using UseAppInsightsTelemetryTracking()
-            services.AddSingleton<IScopeManager, ScopeManager>()
-                .AddSingleton<ITelemetryTracker, NullTelemetryTracker>();
-        });
+        hostBuilder.UseNullTelemetryTracking();
 
         return (hostBuilder, configuration);
     }
