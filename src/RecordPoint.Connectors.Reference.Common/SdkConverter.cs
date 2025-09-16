@@ -32,6 +32,7 @@ public static class SdkConverter
             {
                 new()
                 {
+                    // CultureInfo.InvariantCulture MUST be used when casting any DateTime types to string.
                     Name = MetadataNames.TimeSubmitted,
                     Type = RecordPointDataTypes.DateTime,
                     Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) 
@@ -77,6 +78,7 @@ public static class SdkConverter
                 {
                     new()
                     {
+                        // CultureInfo.InvariantCulture MUST be used when casting any DateTime types to string.
                         Name = MetadataNames.TimeSubmitted,
                         Type = RecordPointDataTypes.DateTime,
                         Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) 
@@ -117,6 +119,7 @@ public static class SdkConverter
 
         return (sdkRecords, auditEvents);
     }
+
     /// <summary>
     /// This is a sample method showing how to submit audit events. Most connectors will monitor other events
     /// (e.g. 'Deleted'), not 'Checked Out'. Some connectors do not even submit audits.
@@ -149,12 +152,14 @@ public static class SdkConverter
             }
         };
     }
+
     private static bool WasRecordCheckedOut(FileInfo record)
     {
         //Stub for demonstration purposes. Outside the Reference Connector you may need to perform some
         //logic on the file to determine if this record version is associated with an auditable event.
         return true;
     }
+
     private static bool ShouldSkip(FileSystemInfo sysInfo, DateTime? lastPolledTime)
     {
         // The Ref Connector uses the DateTime start of each polling loop as the cursor.

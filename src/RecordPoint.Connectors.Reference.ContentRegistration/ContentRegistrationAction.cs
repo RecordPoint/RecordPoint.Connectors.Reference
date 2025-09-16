@@ -1,4 +1,5 @@
 ﻿using RecordPoint.Connectors.Reference.Common;
+using RecordPoint.Connectors.Reference.Common.Abstractions;
 using RecordPoint.Connectors.SDK.Client.Models;
 using RecordPoint.Connectors.SDK.Content;
 using RecordPoint.Connectors.SDK.ContentManager;
@@ -13,30 +14,45 @@ namespace RecordPoint.Connectors.Reference.ContentRegistration;
 public class ContentRegistrationAction : IContentRegistrationAction
 {
     private readonly IChannelManager _channelManager;
+    private readonly IFileSystemClient _fileSystemClient;
 
-    public ContentRegistrationAction(IChannelManager channelManager)
+    public ContentRegistrationAction(IChannelManager channelManager, IFileSystemClient fileSystemClient)
     {
         _channelManager = channelManager;
+        _fileSystemClient = fileSystemClient;
     }
 
+    /// <summary>
+    /// Called for the first execution of Content Reg for this channel.
+    /// </summary>
+    /// <remarks>
+    /// If BeginAsync() does not discover all the content from this channel,
+    /// Content Reg will run again via ContinueAsync().
+    /// </remarks>
+    /// <param name="connectorConfiguration"></param>
+    /// <param name="channel">Stripped down model of channel without any custom metadata.</param>
+    /// <param name="context">
+    /// Information provided on the user's content registration request,
+    /// e.g. only items from the last 3 months should be registered. Possible values are defined per connector type.</param>
+    /// <param name="cancellationToken"></param>
     public async Task<ContentResult> BeginAsync(ConnectorConfigModel connectorConfiguration, Channel channel,
         IDictionary<string, string> context, CancellationToken cancellationToken)
     {
         try
         {
-            if (connectorConfiguration.GetPropertyOrDefault(MetadataNames.ContentRegistrationMode) !=
+            if (connectorConfiguration.GetPropertyOrDefault(MetadataNames.ContentRegistrationMode) ==
                 ConnectorConfigOptions.ContentRegMode.None.ToString())
-
-            {
-                var result = await PollChanges(connectorConfiguration, channel, cancellationToken);
-
-                return result;
+            { 
+                return new ContentResult
+                {
+                    ResultType = ContentResultType.Complete
+                };
             }
-            return new ContentResult
-            {
-                ResultType = ContentResultType.Complete
-            };
-            
+
+            var result = await PollChanges(connectorConfiguration, channel, cancellationToken);
+
+            return result;
+
         }
         catch (Exception ex)
         {
@@ -44,6 +60,12 @@ public class ContentRegistrationAction : IContentRegistrationAction
         }
     }
 
+    /// <summary>
+    /// Used for all subsequent runs of Content Reg for this channel.
+    /// </summary>
+    /// <remarks>
+    /// The cursor returned from the previous execution of Content Reg is passed into this method.
+    /// </remarks>
     public async Task<ContentResult> ContinueAsync(ConnectorConfigModel connectorConfiguration, Channel channel,
         string cursor, IDictionary<string, string> context, CancellationToken cancellationToken)
     {
@@ -51,7 +73,6 @@ public class ContentRegistrationAction : IContentRegistrationAction
         {
             if (connectorConfiguration.GetPropertyOrDefault(MetadataNames.ContentRegistrationMode) !=
                 ConnectorConfigOptions.ContentRegMode.None.ToString())
-
             {
                 // Outside the Ref Connector, make sure to use the cursor value in this method.
                 // (See return value of PollChanges.)
@@ -61,7 +82,6 @@ public class ContentRegistrationAction : IContentRegistrationAction
             {
                 ResultType = ContentResultType.Complete
             };
-
         }
         catch (Exception ex)
         {
@@ -81,24 +101,21 @@ public class ContentRegistrationAction : IContentRegistrationAction
     {
         channel = await _channelManager.GetFullChannelAsync(connectorConfiguration.Id,
             channel.ExternalId ?? string.Empty, cancellationToken);
+
         try
         {
             var channelPath = channel.MetaDataItems.First(x => x.Name.Equals(MetadataNames.Path));
-            var channelDir = new DirectoryInfo(channelPath.Value);
-
-            var aggregations = channelDir.EnumerateDirectories();
+            var aggregations = _fileSystemClient.GetAggregations(channelPath.Value);
+            
             var sdkAggregations = new List<Aggregation>();
             var sdkRecords = new List<Record>();
             var auditEvents = new List<AuditEvent>();
+
             foreach (var aggregation in aggregations)
             {
                 var (sdkAggregation, _) = SdkConverter.GetSdkAggregation(aggregation, channel);
-
-                var childRecords = aggregation.EnumerateFiles();
-
-
+                var childRecords = _fileSystemClient.GetRecords(aggregation);
                 var (sdkChildRecords, recordAuditEvents) = SdkConverter.GetSdkRecords(childRecords, sdkAggregation);
-
                 sdkRecords.AddRange(sdkChildRecords);
                 auditEvents.AddRange(recordAuditEvents);
                 sdkAggregations.Add(sdkAggregation);
@@ -106,30 +123,29 @@ public class ContentRegistrationAction : IContentRegistrationAction
 
             return new ContentResult
             {
-                //The SDK will submit records,aggregations audit events to RecordPoint
+                // The SDK will submit records, aggregations, audit events to Submission services
+                // which will then submit them to RecordPoint
                 Records = sdkRecords,
                 Aggregations = sdkAggregations,
+                AuditEvents = auditEvents,
 
                 // If you know there are more objects in the content source remaining to be synced,
                 // use ContentResultType.Incomplete instead.
                 // The SDK will then schedule this job to run again ASAP.
-                ResultType = ContentResultType.Complete,
+                ResultType = ContentResultType.Complete
+
                 // If you are using ContentResultType.Incomplete,
                 // make sure to set the Cursor here.
                 // (Refer Content Sync for an example of using the cursor)
-
-                AuditEvents = auditEvents
             };
         }
-        catch (Exception ex) when (ex is IOException or TimeoutException)
+        catch (Exception ex) when (ContentSourceHelper.IsThrottlingException(ex))
         {
-            //These exceptions might result from throttling, this is the assumption which we will make for this connector.
-            //The following is an example of how to handle such situations.
-
-            //This represents the time in seconds to wait before retrying the content reg.
-            //The SDK will retry the content reg after the specified delay.
-            //This is an example default value, for other connectors the exception might even contain the delay
-            var delay = 30;
+            // Every call to the content source should catch throttling exceptions.
+            // We want to handle these separately from other types of exceptions,
+            // as they mean we need to back off on all operations touching the content source
+            // for this tenant. 
+            var delay = ContentSourceHelper.GetBackoffTimeSeconds(ex);
             return ContentHelper.ThrottledContentResult(ex, delay);
         }
     }

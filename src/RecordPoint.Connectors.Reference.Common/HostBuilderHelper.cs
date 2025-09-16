@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Hosting;
 using RecordPoint.Connectors.SDK;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
+using RecordPoint.Connectors.Reference.Common.Abstractions;
 using RecordPoint.Connectors.SDK.Caching.Semaphore;
 using RecordPoint.Connectors.SDK.Connectors;
 using RecordPoint.Connectors.SDK.Content;
@@ -77,6 +79,11 @@ public class HostBuilderHelper
         // Custom settings for the Reference Connector
         // (Should not be required for other connectors)
         hostBuilder.UseNullTelemetryTracking();
+        hostBuilder.ConfigureServices(services =>
+        {
+            services
+                .AddSingleton<IFileSystemClient, FileSystemClient>();
+        });
 
         return (hostBuilder, configuration);
     }

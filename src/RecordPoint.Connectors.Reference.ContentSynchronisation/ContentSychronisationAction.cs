@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using RecordPoint.Connectors.Reference.Common;
+using RecordPoint.Connectors.Reference.Common.Abstractions;
 using RecordPoint.Connectors.SDK.Client.Models;
 using RecordPoint.Connectors.SDK.Content;
 using RecordPoint.Connectors.SDK.ContentManager;
@@ -15,12 +16,25 @@ namespace RecordPoint.Connectors.Reference.ContentSynchronisation;
 public class ContentSynchronisationAction : IContentSynchronisationAction
 {
     private readonly IChannelManager _channelManager;
+    private readonly IFileSystemClient _fileSystemClient;
 
-    public ContentSynchronisationAction(IChannelManager channelManager)
+    public ContentSynchronisationAction(IChannelManager channelManager, 
+        IFileSystemClient fileSystemClient)
     {
         _channelManager = channelManager;
+        _fileSystemClient = fileSystemClient;
     }
 
+    /// <summary>
+    /// Called for the first execution of Content Sync for this channel.
+    /// </summary>
+    /// <remarks>
+    /// Future runs will use ContinueAsync().
+    /// </remarks>
+    /// <param name="connectorConfiguration"></param>
+    /// <param name="channel">Stripped down model of channel without any custom metadata.</param>
+    /// <param name="startDate"></param>
+    /// <param name="cancellationToken"></param>
     public async Task<ContentResult> BeginAsync(ConnectorConfigModel connectorConfiguration, Channel channel,
         DateTimeOffset startDate, CancellationToken cancellationToken)
     {
@@ -29,8 +43,8 @@ public class ContentSynchronisationAction : IContentSynchronisationAction
             // In other connectors, this (usually) isn't needed. Just pass an empty cursor to PollChanges.
             //
             // In an ideal situation, the content source will provide 2 APIs:
-            // - 1 for reading the current state of data
-            // - 1 for monitoring changes 
+            // - 1 for reading the current state of data (per channel)
+            // - 1 for monitoring changes (per channel)
             // We'd use the first for content reg, and the second for content sync.
             //
             // For the Ref Connector, we only have a "current state of data" API.
@@ -46,6 +60,12 @@ public class ContentSynchronisationAction : IContentSynchronisationAction
         }
     }
 
+    /// <summary>
+    /// Used for all subsequent runs of Content Sync for this channel.
+    /// </summary>
+    /// <remarks>
+    /// The cursor returned from the previous execution of Content Sync is passed into this method.
+    /// </remarks>
     public async Task<ContentResult> ContinueAsync(ConnectorConfigModel connectorConfiguration, Channel channel,
         string cursor, CancellationToken cancellationToken)
     {
@@ -69,9 +89,9 @@ public class ContentSynchronisationAction : IContentSynchronisationAction
         {
             _ = DateTime.TryParse(cursor, CultureInfo.InvariantCulture, out var lastPolledTime);
             var startTime = DateTime.UtcNow;
+
             var channelPath = channel.MetaDataItems.First(x => x.Name.Equals(MetadataNames.Path));
-            var channelDir = new DirectoryInfo(channelPath.Value);
-            var auditEvents = new List<AuditEvent>();
+            var channelDir = _fileSystemClient.GetChannel(channelPath.Value);
 
             var channelValidationResult = ValidateChannel(connectorConfiguration, channel, channelDir);
             if (channelValidationResult != null)
@@ -79,22 +99,24 @@ public class ContentSynchronisationAction : IContentSynchronisationAction
                 return channelValidationResult;
             }
 
-            var aggregations = channelDir.EnumerateDirectories();
+            var aggregations = _fileSystemClient.GetAggregations(channelPath.Value);
             var sdkAggregations = new List<Aggregation>();
             var sdkRecords = new List<Record>();
+            var auditEvents = new List<AuditEvent>();
 
             foreach (var aggregation in aggregations)
             {
                 var (sdkAggregation, shouldNotSubmitAggVersion) =
                     SdkConverter.GetSdkAggregation(aggregation, channel, lastPolledTime);
 
-                var childRecords = aggregation.EnumerateFiles();
+                var childRecords = _fileSystemClient.GetRecords(aggregation);
 
                 var (sdkChildRecords, recordAuditEvents) =
                     SdkConverter.GetSdkRecords(childRecords, sdkAggregation, lastPolledTime);
 
                 sdkRecords.AddRange(sdkChildRecords);
                 auditEvents.AddRange(recordAuditEvents);
+
                 if (!shouldNotSubmitAggVersion)
                     sdkAggregations.Add(sdkAggregation);
             }
@@ -102,8 +124,8 @@ public class ContentSynchronisationAction : IContentSynchronisationAction
             var contentResult = new ContentResult
             {
                 //The SDK will submit records,aggregations audit events to RecordPoint
-                Records = sdkRecords,
-                Aggregations = sdkAggregations,
+                Records = new List<Record>(),
+                Aggregations = new List<Aggregation>(),
 
                 // The cursor keeps track of where in the content source we're 'up to'.
                 // Ideally we'd use something from the content source, e.g. a page token.
@@ -119,11 +141,13 @@ public class ContentSynchronisationAction : IContentSynchronisationAction
 
             return contentResult;
         }
-        catch (Exception ex) when(ex is IOException || ex is TimeoutException)
+        catch (Exception ex) when(ContentSourceHelper.IsThrottlingException(ex))
         {
-            //These exceptions might result from throttling, this is the assumption which we will make for this connector.
-            //The following is an example of how to handle such situations.
-            var delay = 30;
+            // Every call to the content source should catch throttling exceptions.
+            // We want to handle these separately from other types of exceptions,
+            // as they mean we need to back off on all operations touching the content source
+            // for this tenant. 
+            var delay = ContentSourceHelper.GetBackoffTimeSeconds(ex);
             return ContentHelper.ThrottledContentResult(ex, delay);
         }
     }
@@ -135,11 +159,11 @@ public class ContentSynchronisationAction : IContentSynchronisationAction
         return Task.CompletedTask;
     }
 
-    private ContentResult? ValidateChannel(ConnectorConfigModel config, Channel channel, DirectoryInfo channelDir)
+    private ContentResult? ValidateChannel(ConnectorConfigModel config, Channel channel, DirectoryInfo? channelDir)
     {
         // Content Sync is responsible for checking that the Channel is valid.
         // (No other service needs to do this.)
-        if (!channelDir.Exists)
+        if (channelDir == null)
         {
             return ContentHelper.AbandonResult("Directory no longer exists");
         }

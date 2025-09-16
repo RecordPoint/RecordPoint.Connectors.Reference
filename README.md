@@ -8,6 +8,8 @@ The README for the Connector SDK covers essential concepts needed to build a con
 As this is a "demo" connector, there are some compromises in the design, or places where things would be done differently in a real connector. 
 These are called out with code comments.
 
+For example, the Reference Connector is unable to detect renames and deletions (for file and directories). Most other connectors should try to detect these.
+
 # Installation guide
 
 ## Prerequisites
@@ -35,9 +37,13 @@ These are called out with code comments.
 5. Get the Entra ID settings. 
    - If you want to connect to a local Eiger environment, go to the 'Creating an Entra ID app' section below.
    - If you want to connect to SINT, go to 'Getting access to the SINT Entra ID application' below.
-6. Create one or more connector configs in Records365. 
+6. Open Visual Studio.
+   - Enable Multi Project Launch Configuation https://devblogs.microsoft.com/visualstudio/multi-project-launch-configuration/
+   - Run the connector using the "All Services" build profile.
+   - *(This is required to set up RabbitMq queues.)*
+7. Create one or more connector configs in Records365. 
    - See 'Creating a config' section below.
-7. Create a directory to contain test files that will be synced to RecordPoint.
+8. Create a directory to contain test files that will be synced to RecordPoint.
    - Copy the full path into this appsettings property: ConnectorConfigs -> Directory
    - Create a subdirectory. *(This will become a 'Channel'.)*
    - Create a subdirectory within that subdirectory. *(This will become an 'Aggregation'.)*
