@@ -7,8 +7,9 @@ The README for the Connector SDK covers essential concepts needed to build a con
 
 As this is a "demo" connector, there are some compromises in the design, or places where things would be done differently in a real connector. 
 These are called out with code comments.
+(For example, the Reference Connector is unable to detect renames and deletions for file and directories. Most other connectors should try to detect these.)
 
-For example, the Reference Connector is unable to detect renames and deletions (for file and directories). Most other connectors should try to detect these.
+Most connectors are cloud-based. This repo does not include infrastructure and CICD code required to build a cloud connector. Refer to the Cloud Reference Connector for a template for that part of the code. (The CRC is not hosted on GitHub.)
 
 # Installation guide
 
@@ -124,3 +125,17 @@ To create another config in a different R365 tenant, repeat all steps.
 [rabbitmq-service]: https://www.rabbitmq.com/docs/man/rabbitmq-service.8
 [rabbitmq-localhost]: http://localhost:15672/
 [multi-project-launch]: https://devblogs.microsoft.com/visualstudio/multi-project-launch-configuration/
+
+### Customising the behaviour of the SDK
+
+The default appsettings for this project includes settings to control the behaviour of the SDK (e.g. how often operations run).
+
+(Outside of local development, these are usually not specified.)
+
+Refer to [ContentManagerOptions](https://github.com/RecordPoint/RecordPoint.Connectors.SDK/blob/master/RecordPoint.Connectors.SDK.Abstractions/ContentManager/ContentManagerOptions.cs) (and other classes that use it, e.g. ChannelDiscoveryOptions).
+
+### Resetting state
+
+Run ClearLocalState.ps1 to empty the RabbitMQ queues and database. 
+
+Deleting records from Records365 is not recommended. Ask the team for help if you need to do it. 

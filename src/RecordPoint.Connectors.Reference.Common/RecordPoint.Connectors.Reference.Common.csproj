@@ -13,6 +13,9 @@
     <PackageReference Include="RecordPoint.Connectors.SDK.Databases.Sqlite" Version="2.3.2" />
     <PackageReference Include="RecordPoint.Connectors.SDK.Toggles.LaunchDarkly" Version="2.3.2" />
     <PackageReference Include="RecordPoint.Connectors.SDK.WorkQueue.RabbitMq" Version="2.3.2" />
+    <PackageReference Include="RecordPoint.Connectors.SDK.Databases.Cosmos" Version="2.3.2" />
+    <PackageReference Include="RecordPoint.Connectors.SDK.WebHost" Version="2.3.2" />
+    <PackageReference Include="RecordPoint.Connectors.SDK.WorkQueue.AzureServiceBus" Version="2.3.2" />
   </ItemGroup>
 
 </Project>

@@ -2,15 +2,16 @@
 
 /// <summary>
 /// Settings for a single connector config.
+/// NOT REQUIRED outside the ReferenceConnector.
+/// (UNLESS you need to connect a local instance of the connector to SINT.)
 /// </summary>
 /// <remarks>
 /// The Reference Connector uses the Custom Connector UI,
 /// which does not have an option for inputting extra settings for connector configs.
 /// 
-/// In a normal scenario, these settings would be input by the customer
-/// when creating a connector config.
-/// These settings would then be accessible to developers via an entry in:
-/// connector.Properties
+/// Outside the Ref Connector, these 'extra' settings would be input by the customer
+/// via the connector config page in RecordPoint. The settings would then be accessible
+/// to developers via an entry in: ConnectorConfigModel.Properties
 /// </remarks>
 public class ConnectorConfigOptions
 {

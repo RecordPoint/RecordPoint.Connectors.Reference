@@ -39,11 +39,11 @@ public static class Program
     }
 
     /// <summary>
-    /// Contains DI that is NOT REQUIRED outside the ReferenceConnector.
+    /// Contains dependency injection that is NOT REQUIRED outside the ReferenceConnector.
     /// </summary>
     private static void AddReferenceConnectorNotificationServices(IHostBuilder builder)
     {
-        // Override the notification DI stuff that the SDK registered.
+        // Override the notification dependency injection that the SDK registered.
         // See ConnectorConfigCreatorService for an explanation of why.
         builder.ConfigureServices((hostContext, services) =>
         {

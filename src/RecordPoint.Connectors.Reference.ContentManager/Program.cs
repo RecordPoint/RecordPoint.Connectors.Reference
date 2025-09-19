@@ -23,7 +23,7 @@ public static class Program
 
         // The Content Manager service does not communicate with the content source,
         // so it does not require any custom code. 
-        // All you need to implement the service is this DI code:
+        // All you need to implement the service is this dependency injection code:
         builder.HostBuilder.UseContentManagerService();
 
         return builder.HostBuilder;

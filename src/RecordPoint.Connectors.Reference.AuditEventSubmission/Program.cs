@@ -29,7 +29,7 @@ public static class Program
 
         // This service does not communicate with the content source,
         // so it does not require any custom code.
-        // All you need to implement the service is this DI code:
+        // All you need to implement the service is this dependency injection code:
         builder.HostBuilder
             .UseR365AppSettingsConfiguration()
             .UseR365Integration()
