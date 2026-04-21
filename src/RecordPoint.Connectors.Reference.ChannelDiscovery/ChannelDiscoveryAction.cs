@@ -1,5 +1,4 @@
 ﻿using RecordPoint.Connectors.Reference.Common;
-using RecordPoint.Connectors.SDK.Caching.Semaphore;
 using RecordPoint.Connectors.SDK.Client.Models;
 using RecordPoint.Connectors.SDK.Content;
 using RecordPoint.Connectors.SDK.ContentManager;
@@ -23,8 +22,8 @@ public class ChannelDiscoveryAction : IChannelDiscoveryAction
         _channelManager = channelManager;
     }
 
-    public async Task<ChannelDiscoveryResult> ExecuteAsync(ConnectorConfigModel connectorConfiguration,
-        CancellationToken cancellationToken)
+    public async Task<ChannelDiscoveryResult> ExecuteAsync(ConnectorConfigModel connectorConfiguration, CancellationToken cancellationToken,
+        string? cursor = null)
     {
         try
         {
@@ -41,7 +40,7 @@ public class ChannelDiscoveryAction : IChannelDiscoveryAction
     }
 
     public async Task<ChannelDiscoveryResult> FindChannels(ConnectorConfigModel connectorConfiguration,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken, string? cursor = null)
     {
         var connectorDir = connectorConfiguration.GetPropertyOrDefault(MetadataNames.Directory);
         if (string.IsNullOrEmpty(connectorDir))

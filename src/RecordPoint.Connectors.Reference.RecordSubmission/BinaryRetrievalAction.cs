@@ -4,7 +4,7 @@ using RecordPoint.Connectors.SDK.Client.Models;
 using RecordPoint.Connectors.SDK.Content;
 using RecordPoint.Connectors.SDK.ContentManager;
 
-namespace RecordPoint.Connectors.Reference.BinarySubmission;
+namespace RecordPoint.Connectors.Reference.RecordSubmission;
 
 /// <inheritdoc cref="IBinaryRetrievalAction"/>
 public class BinaryRetrievalAction : IBinaryRetrievalAction

@@ -32,7 +32,7 @@ public static class Program
         builder.HostBuilder
             .UseR365AppSettingsConfiguration()
             .UseR365Integration()
-            .UseRecordSubmissionOperation();
+            .UseSynchronousRecordSubmissionOperation<BinaryRetrievalAction>();
 
         return builder.HostBuilder;
     }
